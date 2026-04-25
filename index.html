@@ -205,6 +205,30 @@
       font-size: 0.92rem;
       line-height: 1.55;
     }
+
+    .page-footer {
+      margin-top: 36px;
+      padding-top: 8px;
+    }
+
+    .footer-link {
+      display: inline-block;
+      font-size: 0.88rem;
+      font-weight: 600;
+      color: var(--text-sub);
+      text-decoration: none;
+      transition: color 0.18s ease;
+    }
+
+    .footer-link:hover {
+      color: var(--accent-dark);
+    }
+
+    .footer-link:focus-visible {
+      outline: 2px solid rgba(59, 130, 246, 0.6);
+      outline-offset: 3px;
+      border-radius: 4px;
+    }
   </style>
 </head>
 <body>
@@ -228,6 +252,10 @@
     </section>
 
     <section id="results" class="results"></section>
+
+    <nav class="page-footer" aria-label="More">
+      <a class="footer-link" href="feedback.html">Send feedback →</a>
+    </nav>
   </main>
 
   <script>
