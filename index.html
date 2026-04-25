@@ -359,6 +359,7 @@
           const permalink = post.permalink || "https://www.reddit.com/r/SomebodyMakeThis/";
           const ai = post.ai || {};
           const painIntensity = Number.isFinite(ai.pain_intensity) ? ai.pain_intensity : null;
+          const attentionScore = Number.isFinite(ai.attention_score) ? ai.attention_score : null;
           const stars = starsFromPainIntensity(painIntensity);
           const summary = typeof ai.summary === "string" && ai.summary.trim()
             ? ai.summary.trim()
@@ -374,7 +375,9 @@
               </h3>
               <div class="meta">
                 <span class="source">Reddit</span>
-                <span class="heat">${score} mentions</span>
+                ${Number.isFinite(attentionScore)
+                  ? `<span class="heat">🔥 ${attentionScore}/10 热度</span>`
+                  : `<span class="heat">热度: 暂无</span>`}
                 ${stars ? `<span class="heat">Pain: ${stars}</span>` : `<span class="heat">Pain: —</span>`}
               </div>
               <p class="desc">${safeSummary}</p>

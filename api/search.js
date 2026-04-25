@@ -37,7 +37,12 @@ export default async function handler(req, res) {
 
   async function analyzeWithDeepSeek(post) {
     if (!deepseekKey) {
-      return { pain_intensity: null, summary: null, error: "DEEPSEEK_API_KEY not set" };
+      return {
+        pain_intensity: null,
+        summary: null,
+        attention_score: null,
+        error: "DEEPSEEK_API_KEY not set",
+      };
     }
 
     const title = String(post.title || "");
@@ -46,6 +51,7 @@ export default async function handler(req, res) {
       "You are analyzing a Reddit post to detect user pain and product opportunity.",
       "Return ONLY valid JSON with exactly these keys:",
       "- pain_intensity: number (1-10)",
+      "- attention_score: number (1-10, predicted attention/discussion level)",
       "- summary: string (one-sentence English summary of the need)",
       "",
       `Title: ${title}`,
@@ -73,6 +79,7 @@ export default async function handler(req, res) {
       return {
         pain_intensity: null,
         summary: null,
+        attention_score: null,
         error: `DeepSeek request failed: ${response.status}${text ? ` - ${text.slice(0, 200)}` : ""}`,
       };
     }
@@ -88,10 +95,19 @@ export default async function handler(req, res) {
       const pain_intensity = Number.isFinite(intensityNum)
         ? Math.max(1, Math.min(10, Math.round(intensityNum)))
         : null;
+      const attentionNum = Number(parsed.attention_score);
+      const attention_score = Number.isFinite(attentionNum)
+        ? Math.max(1, Math.min(10, Math.round(attentionNum)))
+        : null;
       const summary = typeof parsed.summary === "string" ? parsed.summary.trim() : null;
-      return { pain_intensity, summary };
+      return { pain_intensity, summary, attention_score };
     } catch {
-      return { pain_intensity: null, summary: null, error: "Failed to parse DeepSeek JSON" };
+      return {
+        pain_intensity: null,
+        summary: null,
+        attention_score: null,
+        error: "Failed to parse DeepSeek JSON",
+      };
     }
   }
 
