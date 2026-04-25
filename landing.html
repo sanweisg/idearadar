@@ -1,0 +1,175 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>IdeaRadar — Find startup ideas from real demand</title>
+  <style>
+    :root {
+      --bg: #0f1117;
+      --bg-soft: #151922;
+      --text-main: #f2f5ff;
+      --text-sub: #9ca7c2;
+      --accent: #3b82f6;
+      --accent-hover: #5b9bff;
+    }
+
+    * {
+      box-sizing: border-box;
+    }
+
+    body {
+      margin: 0;
+      min-height: 100vh;
+      font-family: Inter, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+      color: var(--text-main);
+      background:
+        radial-gradient(circle at 15% 20%, #1a2440 0%, transparent 38%),
+        radial-gradient(circle at 85% 0%, #1a2d57 0%, transparent 30%),
+        var(--bg);
+      display: grid;
+      place-items: center;
+      padding: 28px 16px;
+    }
+
+    .container {
+      width: min(720px, 100%);
+      text-align: center;
+    }
+
+    h1 {
+      margin: 0;
+      font-size: clamp(2rem, 4.5vw, 3.1rem);
+      line-height: 1.15;
+      letter-spacing: -0.02em;
+      font-weight: 800;
+    }
+
+    .subtitle {
+      margin: 14px auto 0;
+      font-size: clamp(1rem, 2.2vw, 1.18rem);
+      color: var(--text-sub);
+      max-width: 680px;
+    }
+
+    .value-proposition {
+      margin: 22px auto 0;
+      max-width: 640px;
+      font-size: clamp(1.12rem, 2.5vw, 1.32rem);
+      line-height: 1.5;
+      font-weight: 700;
+      color: #e8ecf8;
+      text-align: center;
+    }
+
+    .example-table-wrap {
+      margin: 24px auto 0;
+      width: 100%;
+      max-width: 640px;
+      overflow-x: auto;
+      -webkit-overflow-scrolling: touch;
+    }
+
+    .example-table {
+      width: 100%;
+      border-collapse: separate;
+      border-spacing: 0;
+      background: #12151d;
+      border: 1px solid rgba(200, 210, 255, 0.45);
+      border-radius: 14px;
+      overflow: hidden;
+      font-size: 0.9rem;
+      line-height: 1.45;
+      text-align: left;
+    }
+
+    .example-table th,
+    .example-table td {
+      padding: 12px 14px;
+      border-bottom: 1px solid rgba(200, 210, 255, 0.2);
+      color: #e2e6f0;
+    }
+
+    .example-table th {
+      background: rgba(0, 0, 0, 0.25);
+      color: #f0f3ff;
+      font-weight: 700;
+      font-size: 0.82rem;
+      letter-spacing: 0.04em;
+      text-transform: uppercase;
+    }
+
+    .example-table tr:last-child td {
+      border-bottom: none;
+    }
+
+    .example-table .muted {
+      color: #a8b0c8;
+      font-size: 0.85em;
+    }
+
+    .cta {
+      display: inline-block;
+      margin-top: 32px;
+      border: none;
+      cursor: pointer;
+      border-radius: 10px;
+      padding: 14px 26px;
+      font-size: 0.98rem;
+      font-weight: 700;
+      color: white;
+      text-decoration: none;
+      background: #3b82f6;
+      box-shadow: 0 6px 16px rgba(59, 130, 246, 0.35);
+      transition: background 0.2s ease, transform 0.2s ease, box-shadow 0.2s ease;
+    }
+
+    .cta:hover {
+      background: var(--accent-hover);
+      transform: translateY(-1px);
+      box-shadow: 0 10px 24px rgba(91, 155, 255, 0.5);
+    }
+
+    .cta:active {
+      transform: translateY(0);
+    }
+  </style>
+</head>
+<body>
+  <main class="container">
+    <h1>Find Startup Ideas in One Search</h1>
+    <p class="subtitle">Discover real pain points from Reddit, powered by AI</p>
+
+    <p class="value-proposition">
+      Reddit is full of people asking for solutions. IdeaRadar finds them. Turn real complaints into profitable products.
+    </p>
+
+    <div class="example-table-wrap">
+      <table class="example-table">
+        <thead>
+          <tr>
+            <th>Pain</th>
+            <th>Opportunity</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>
+              "I can't find a good AI scheduler" <span class="muted">(Reddit, 23 mentions)</span>
+            </td>
+            <td>Build a simple AI scheduling tool</td>
+          </tr>
+          <tr>
+            <td>
+              "Studying is painful..." <span class="muted">(Reddit, 5 mentions)</span>
+            </td>
+            <td>Create a note-organizing web app</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+
+    <a class="cta" href="index.html">Stop Guessing, Start Building — Try It Free</a>
+  </main>
+</body>
+</html>

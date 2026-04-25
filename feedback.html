@@ -1,0 +1,473 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>IdeaRadar Feedback Board</title>
+  <style>
+    :root {
+      --bg: #0d0d0d;
+      --card: #1a1a1a;
+      --text-main: #f2f5ff;
+      --text-sub: #9ca7c2;
+      --accent: #3b82f6;
+      --accent-hover: #5b9bff;
+      --border: rgba(255, 255, 255, 0.1);
+      --tag-bug: #ef4444;
+      --tag-feature: #3b82f6;
+      --tag-general: #22c55e;
+    }
+
+    * {
+      box-sizing: border-box;
+    }
+
+    body {
+      margin: 0;
+      min-height: 100vh;
+      font-family: Inter, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+      color: var(--text-main);
+      background:
+        radial-gradient(circle at 15% 20%, #1a2440 0%, transparent 38%),
+        radial-gradient(circle at 85% 0%, #1a2d57 0%, transparent 30%),
+        var(--bg);
+      padding: 28px 16px 64px;
+    }
+
+    .page {
+      width: min(720px, 100%);
+      margin: 0 auto;
+    }
+
+    .header {
+      text-align: center;
+      margin-bottom: 32px;
+    }
+
+    .back-link {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      margin: 0 0 18px;
+      font-size: 0.88rem;
+      font-weight: 600;
+      color: var(--text-sub);
+      text-decoration: none;
+      transition: color 0.18s ease;
+    }
+
+    .back-link:hover {
+      color: var(--accent-hover);
+    }
+
+    .back-link:focus-visible {
+      outline: 2px solid rgba(59, 130, 246, 0.6);
+      outline-offset: 3px;
+      border-radius: 4px;
+    }
+
+    h1 {
+      margin: 0;
+      font-size: clamp(1.75rem, 4vw, 2.5rem);
+      line-height: 1.2;
+      letter-spacing: -0.02em;
+      font-weight: 800;
+    }
+
+    .subtitle {
+      margin: 12px auto 0;
+      font-size: clamp(0.95rem, 2vw, 1.1rem);
+      color: var(--text-sub);
+      max-width: 520px;
+    }
+
+    .form-panel {
+      background: rgba(255, 255, 255, 0.03);
+      border: 1px solid var(--border);
+      border-radius: 14px;
+      padding: 20px 20px 22px;
+      text-align: left;
+      box-shadow: 0 10px 24px rgba(0, 0, 0, 0.22);
+    }
+
+    .field {
+      margin-bottom: 16px;
+    }
+
+    .field:last-of-type {
+      margin-bottom: 0;
+    }
+
+    label {
+      display: block;
+      margin-bottom: 6px;
+      font-size: 0.88rem;
+      font-weight: 600;
+      color: #b8c0d9;
+    }
+
+    .field-hint {
+      font-weight: 400;
+      color: var(--text-sub);
+    }
+
+    input[type="text"],
+    select,
+    textarea {
+      width: 100%;
+      border: 1px solid rgba(255, 255, 255, 0.12);
+      border-radius: 10px;
+      background: #141414;
+      color: var(--text-main);
+      font-size: 0.95rem;
+      font-family: inherit;
+      padding: 12px 14px;
+      transition: border-color 0.2s ease, box-shadow 0.2s ease;
+    }
+
+    textarea {
+      min-height: 120px;
+      resize: vertical;
+    }
+
+    input::placeholder,
+    textarea::placeholder {
+      color: #6b7280;
+    }
+
+    input:focus,
+    select:focus,
+    textarea:focus {
+      outline: none;
+      border-color: rgba(59, 130, 246, 0.75);
+      box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.2);
+    }
+
+    select {
+      cursor: pointer;
+      appearance: none;
+      background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 12 12'%3E%3Cpath fill='%239ca7c2' d='M3 4.5L6 7.5L9 4.5'/%3E%3C/svg%3E");
+      background-repeat: no-repeat;
+      background-position: right 12px center;
+      padding-right: 36px;
+    }
+
+    .submit-wrap {
+      margin-top: 18px;
+      text-align: center;
+    }
+
+    .submit-btn {
+      border: none;
+      cursor: pointer;
+      border-radius: 10px;
+      padding: 12px 28px;
+      font-size: 0.95rem;
+      font-weight: 700;
+      color: white;
+      background: var(--accent);
+      box-shadow: 0 6px 16px rgba(59, 130, 246, 0.35);
+      transition: background 0.2s ease, transform 0.2s ease, box-shadow 0.2s ease;
+    }
+
+    .submit-btn:hover {
+      background: var(--accent-hover);
+      transform: translateY(-1px);
+      box-shadow: 0 10px 24px rgba(59, 130, 246, 0.45);
+    }
+
+    .submit-btn:active {
+      transform: translateY(0);
+    }
+
+    .board-title {
+      margin: 40px 0 14px;
+      font-size: 1.05rem;
+      font-weight: 700;
+      text-align: left;
+      color: #c8d0e8;
+    }
+
+    .feedback-list {
+      display: flex;
+      flex-direction: column;
+      gap: 14px;
+    }
+
+    .empty-state {
+      text-align: center;
+      color: var(--text-sub);
+      font-size: 0.95rem;
+      padding: 28px 16px;
+      border: 1px dashed var(--border);
+      border-radius: 14px;
+    }
+
+    .card {
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: 14px;
+      padding: 16px 18px;
+      text-align: left;
+      box-shadow: 0 4px 14px rgba(0, 0, 0, 0.25);
+      transition: transform 0.22s ease, box-shadow 0.22s ease;
+    }
+
+    .card:hover {
+      transform: translateY(-4px);
+      box-shadow: 0 12px 28px rgba(0, 0, 0, 0.35);
+    }
+
+    .card-head {
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      gap: 10px 12px;
+      margin-bottom: 10px;
+    }
+
+    .type-tag {
+      display: inline-block;
+      padding: 4px 10px;
+      border-radius: 999px;
+      font-size: 0.75rem;
+      font-weight: 700;
+      letter-spacing: 0.02em;
+      text-transform: uppercase;
+    }
+
+    .type-tag.bug {
+      background: rgba(239, 68, 68, 0.18);
+      color: #fca5a5;
+      border: 1px solid rgba(239, 68, 68, 0.45);
+    }
+
+    .type-tag.feature {
+      background: rgba(59, 130, 246, 0.2);
+      color: #93c5fd;
+      border: 1px solid rgba(59, 130, 246, 0.5);
+    }
+
+    .type-tag.general {
+      background: rgba(34, 197, 94, 0.18);
+      color: #86efac;
+      border: 1px solid rgba(34, 197, 94, 0.45);
+    }
+
+    .card-meta {
+      margin-left: auto;
+      font-size: 0.8rem;
+      color: #8b95b0;
+    }
+
+    @media (max-width: 520px) {
+      .card-meta {
+        width: 100%;
+        margin-left: 0;
+      }
+    }
+
+    .card-body {
+      margin: 0;
+      font-size: 0.95rem;
+      line-height: 1.55;
+      color: #e6e9f2;
+      white-space: pre-wrap;
+      word-break: break-word;
+    }
+
+    .footer-tools {
+      margin-top: 40px;
+      text-align: center;
+    }
+
+    .clear-link {
+      font-size: 0.72rem;
+      color: #5c6378;
+      background: none;
+      border: none;
+      cursor: pointer;
+      text-decoration: underline;
+      text-underline-offset: 3px;
+      padding: 4px 8px;
+    }
+
+    .clear-link:hover {
+      color: #7a8199;
+    }
+  </style>
+</head>
+<body>
+  <div class="page">
+    <header class="header">
+      <a class="back-link" href="index.html">← Back to IdeaRadar</a>
+      <h1>IdeaRadar Feedback Board</h1>
+      <p class="subtitle">Help us improve — share your thoughts</p>
+    </header>
+
+    <form id="feedbackForm" class="form-panel" novalidate>
+      <div class="field">
+        <label for="nickname">Nickname <span class="field-hint">(optional)</span></label>
+        <input id="nickname" name="nickname" type="text" placeholder="How should we call you?" maxlength="64" autocomplete="nickname" />
+      </div>
+      <div class="field">
+        <label for="feedbackType">Type</label>
+        <select id="feedbackType" name="type" required>
+          <option value="bug">Bug Report</option>
+          <option value="feature" selected>Feature Request</option>
+          <option value="general">General Feedback</option>
+        </select>
+      </div>
+      <div class="field">
+        <label for="content">Your feedback</label>
+        <textarea
+          id="content"
+          name="content"
+          required
+          placeholder="Tell us what’s on your mind…"
+          minlength="1"
+        ></textarea>
+      </div>
+      <div class="submit-wrap">
+        <button type="submit" class="submit-btn">Submit feedback</button>
+      </div>
+    </form>
+
+    <h2 class="board-title">Submitted feedback</h2>
+    <div id="feedbackList" class="feedback-list" aria-live="polite"></div>
+
+    <div class="footer-tools">
+      <button type="button" id="clearAll" class="clear-link">Clear all feedback (local only)</button>
+    </div>
+  </div>
+
+  <script>
+    const STORAGE_KEY = "ideaRadarFeedbackEntries";
+    const form = document.getElementById("feedbackForm");
+    const listEl = document.getElementById("feedbackList");
+    const clearBtn = document.getElementById("clearAll");
+
+    const typeLabels = {
+      bug: "Bug Report",
+      feature: "Feature Request",
+      general: "General Feedback",
+    };
+
+    function escapeHtml(value) {
+      return String(value)
+        .replace(/&/g, "&amp;")
+        .replace(/</g, "&lt;")
+        .replace(/>/g, "&gt;")
+        .replace(/"/g, "&quot;")
+        .replace(/'/g, "&#39;");
+    }
+
+    function loadEntries() {
+      try {
+        const raw = localStorage.getItem(STORAGE_KEY);
+        const parsed = raw ? JSON.parse(raw) : [];
+        if (!Array.isArray(parsed)) {
+          return [];
+        }
+        return parsed
+          .filter(
+            (item) =>
+              item &&
+              typeof item === "object" &&
+              (item.type === "bug" || item.type === "feature" || item.type === "general") &&
+              typeof item.content === "string" &&
+              typeof item.ts === "number"
+          )
+          .sort((a, b) => b.ts - a.ts);
+      } catch {
+        return [];
+      }
+    }
+
+    function saveEntries(entries) {
+      localStorage.setItem(STORAGE_KEY, JSON.stringify(entries));
+    }
+
+    function formatTime(ts) {
+      try {
+        return new Date(ts).toLocaleString(undefined, {
+          year: "numeric",
+          month: "short",
+          day: "numeric",
+          hour: "2-digit",
+          minute: "2-digit",
+        });
+      } catch {
+        return "";
+      }
+    }
+
+    function render() {
+      const entries = loadEntries();
+      if (!entries.length) {
+        listEl.innerHTML = '<p class="empty-state">No feedback yet — be the first to share your thoughts.</p>';
+        return;
+      }
+
+      listEl.innerHTML = entries
+        .map((entry) => {
+          const label = typeLabels[entry.type] || entry.type;
+          const nick = (entry.nickname && String(entry.nickname).trim()) || "Anonymous";
+          const safeContent = escapeHtml(entry.content);
+          const safeNick = escapeHtml(nick);
+          const safeLabel = escapeHtml(label);
+          return `
+            <article class="card">
+              <div class="card-head">
+                <span class="type-tag ${escapeHtml(entry.type)}">${safeLabel}</span>
+                <span class="card-meta">${safeNick} · ${escapeHtml(formatTime(entry.ts))}</span>
+              </div>
+              <p class="card-body">${safeContent}</p>
+            </article>
+          `;
+        })
+        .join("");
+    }
+
+    form.addEventListener("submit", (event) => {
+      event.preventDefault();
+      const content = document.getElementById("content").value.trim();
+      if (!content) {
+        document.getElementById("content").focus();
+        return;
+      }
+
+      const type = document.getElementById("feedbackType").value;
+      const nicknameRaw = document.getElementById("nickname").value.trim();
+
+      const entry = {
+        id: `${Date.now()}-${Math.random().toString(36).slice(2, 9)}`,
+        type,
+        content,
+        nickname: nicknameRaw,
+        ts: Date.now(),
+      };
+
+      const entries = loadEntries();
+      entries.unshift(entry);
+      saveEntries(entries);
+      form.reset();
+      document.getElementById("feedbackType").value = "feature";
+      render();
+    });
+
+    clearBtn.addEventListener("click", () => {
+      if (!loadEntries().length) {
+        return;
+      }
+      if (!window.confirm("Remove all feedback stored in this browser? This cannot be undone.")) {
+        return;
+      }
+      localStorage.removeItem(STORAGE_KEY);
+      render();
+    });
+
+    render();
+  </script>
+</body>
+</html>
