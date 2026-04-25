@@ -330,6 +330,18 @@
       return `${trimmed.slice(0, maxLength)}...`;
     }
 
+    function starsFromPainIntensity(value) {
+      const n = Number(value);
+      if (!Number.isFinite(n)) {
+        return "";
+      }
+      if (n >= 1 && n <= 3) return "⭐";
+      if (n >= 4 && n <= 6) return "⭐⭐";
+      if (n >= 7 && n <= 8) return "⭐⭐⭐";
+      if (n >= 9 && n <= 10) return "⭐⭐⭐⭐";
+      return "";
+    }
+
     function renderResults(posts) {
       if (!posts.length) {
         results.innerHTML = `
@@ -342,13 +354,16 @@
 
       results.innerHTML = posts
         .map((post) => {
-          const data = post.data || {};
-          const title = escapeHtml(data.title || "Untitled post");
-          const score = Number.isFinite(data.score) ? data.score : 0;
-          const description = escapeHtml(truncateText(data.selftext || "", 150));
-          const permalink = data.permalink
-            ? `https://www.reddit.com${data.permalink}`
-            : (data.url || "https://www.reddit.com/r/SomebodyMakeThis/");
+          const title = escapeHtml(post.title || "Untitled post");
+          const score = Number.isFinite(post.score) ? post.score : 0;
+          const permalink = post.permalink || "https://www.reddit.com/r/SomebodyMakeThis/";
+          const ai = post.ai || {};
+          const painIntensity = Number.isFinite(ai.pain_intensity) ? ai.pain_intensity : null;
+          const stars = starsFromPainIntensity(painIntensity);
+          const summary = typeof ai.summary === "string" && ai.summary.trim()
+            ? ai.summary.trim()
+            : "AI summary unavailable.";
+          const safeSummary = escapeHtml(summary);
 
           return `
             <article class="result-card">
@@ -358,10 +373,11 @@
                 </a>
               </h3>
               <div class="meta">
-                <span class="source">Reddit - r/SomebodyMakeThis</span>
+                <span class="source">Reddit</span>
                 <span class="heat">${score} mentions</span>
+                ${stars ? `<span class="heat">Pain: ${stars}</span>` : `<span class="heat">Pain: —</span>`}
               </div>
-              <p class="desc">${description}</p>
+              <p class="desc">${safeSummary}</p>
             </article>
           `;
         })
@@ -372,9 +388,9 @@
       const detail = (error && error.message) ? escapeHtml(error.message) : "Unknown error";
       results.innerHTML = `
         <article class="result-card">
-          <h3 class="card-title">Network error or CORS blocked request.</h3>
-          <p class="desc">Please try again later or check browser/network settings.</p>
-          <p class="desc">Debug: ${detail}</p>
+          <h3 class="card-title">Something went wrong.</h3>
+          <p class="desc">Please try again in a moment.</p>
+          <p class="desc">Details: ${detail}</p>
         </article>
       `;
     }
@@ -414,7 +430,7 @@
 
       try {
         const json = await fetchRedditPosts(keyword);
-        const posts = (json && json.data && Array.isArray(json.data.children)) ? json.data.children : [];
+        const posts = (json && Array.isArray(json.results)) ? json.results : [];
         renderResults(posts);
       } catch (error) {
         renderNetworkError(error);
