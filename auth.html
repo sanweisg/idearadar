@@ -1,191 +1,116 @@
-<!doctype html>
+<!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>IdeaRadar Auth</title>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>IdeaRadar - Sign In</title>
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
   <style>
-    :root {
-      --bg: #0f1117;
-      --bg-soft: #151922;
-      --text-main: #f2f5ff;
-      --text-sub: #9ca7c2;
-      --accent: #3b82f6;
-      --accent-hover: #5b9bff;
-      --card: rgba(255, 255, 255, 0.03);
-      --border: rgba(255, 255, 255, 0.14);
-    }
-    * { box-sizing: border-box; }
+    * { margin: 0; padding: 0; box-sizing: border-box; }
     body {
-      margin: 0;
+      background: #0D0D0D;
+      color: #E0E0E0;
+      font-family: -apple-system, BlinkMacSystemFont, sans-serif;
+      display: flex; justify-content: center; align-items: center;
       min-height: 100vh;
-      font-family: Inter, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
-      color: var(--text-main);
-      background:
-        radial-gradient(circle at 15% 20%, #1a2440 0%, transparent 38%),
-        radial-gradient(circle at 85% 0%, #1a2d57 0%, transparent 30%),
-        var(--bg);
-      display: grid;
-      place-items: center;
-      padding: 24px 16px;
     }
-    .card {
-      width: min(460px, 100%);
-      border: 1px solid var(--border);
-      background: var(--card);
-      border-radius: 16px;
-      padding: 24px;
-      box-shadow: 0 12px 28px rgba(0, 0, 0, 0.35);
-    }
-    .top-link {
-      display: inline-block;
-      margin-bottom: 14px;
-      color: var(--text-sub);
-      text-decoration: none;
-      font-size: 0.9rem;
-      font-weight: 600;
-    }
-    .top-link:hover { color: var(--accent-hover); }
-    h1 {
-      margin: 0 0 6px;
-      font-size: clamp(1.6rem, 4vw, 2rem);
-    }
-    .subtitle {
-      margin: 0 0 20px;
-      color: var(--text-sub);
-      font-size: 0.95rem;
-    }
-    label {
-      display: block;
-      font-size: 0.86rem;
-      color: #c4ccea;
-      margin: 12px 0 6px;
-      font-weight: 600;
-    }
-    input {
+    .container {
+      background: #1A1A1A;
+      padding: 40px;
+      border-radius: 14px;
       width: 100%;
-      border: 1px solid rgba(255, 255, 255, 0.12);
-      background: var(--bg-soft);
-      color: var(--text-main);
-      border-radius: 10px;
-      padding: 12px 14px;
-      font-size: 0.95rem;
+      max-width: 400px;
+      text-align: center;
     }
-    input:focus {
-      outline: none;
-      border-color: rgba(59, 130, 246, 0.8);
-      box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.2);
-    }
-    .actions {
-      margin-top: 18px;
-      display: flex;
-      gap: 10px;
-      align-items: center;
+    h1 { font-size: 1.8rem; margin-bottom: 8px; color: #fff; }
+    .subtitle { color: #888; margin-bottom: 24px; font-size: 0.9rem; }
+    input {
+      display: block; width: 100%; padding: 12px; margin-bottom: 12px;
+      border: 1px solid #333; border-radius: 8px; background: #0D0D0D;
+      color: #fff; font-size: 1rem;
     }
     button {
-      border: none;
-      cursor: pointer;
-      border-radius: 10px;
-      padding: 11px 16px;
-      font-size: 0.92rem;
-      font-weight: 700;
-      background: var(--accent);
-      color: white;
-      transition: background 0.2s ease, transform 0.2s ease;
+      width: 100%; padding: 12px; background: #3B82F6; color: #fff;
+      border: none; border-radius: 8px; font-size: 1rem; cursor: pointer;
+      margin-bottom: 12px;
     }
-    button:hover { background: var(--accent-hover); transform: translateY(-1px); }
-    .ghost {
-      background: transparent;
-      border: 1px solid var(--border);
-      color: var(--text-sub);
-    }
-    .message {
-      margin-top: 12px;
-      min-height: 20px;
-      color: #fbbf24;
-      font-size: 0.88rem;
-    }
+    button:hover { background: #2563EB; }
+    .switch-link { color: #3B82F6; cursor: pointer; text-decoration: underline; }
+    .back-link { display: block; margin-bottom: 20px; color: #888; text-decoration: none; }
   </style>
-  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 </head>
 <body>
-  <main class="card">
-    <a class="top-link" href="landing.html">← Back to landing</a>
-    <h1 id="modeTitle">Sign In</h1>
+  <div class="container">
+    <a class="back-link" href="index.html">← Back to IdeaRadar</a>
+    <h1 id="form-title">Sign In</h1>
     <p class="subtitle">Use your email and password to continue.</p>
-    <form id="authForm">
-      <label for="email">Email</label>
-      <input id="email" type="email" required autocomplete="email" />
-      <label for="password">Password</label>
-      <input id="password" type="password" required minlength="6" autocomplete="current-password" />
-      <div class="actions">
-        <button id="submitBtn" type="submit">Sign In</button>
-        <button id="toggleBtn" class="ghost" type="button">Switch to Sign Up</button>
-      </div>
-      <p id="message" class="message"></p>
+
+    <!-- 登录表单 -->
+    <form id="sign-in-form" onsubmit="return handleSignIn(event)">
+      <input type="email" id="sign-in-email" placeholder="Email" required>
+      <input type="password" id="sign-in-password" placeholder="Password" required>
+      <button type="submit">Sign In</button>
+      <p>Don't have an account? <span class="switch-link" onclick="switchToSignUp()">Switch to Sign Up</span></p>
     </form>
-  </main>
+
+    <!-- 注册表单（默认隐藏） -->
+    <form id="sign-up-form" onsubmit="return handleSignUp(event)" style="display: none;">
+      <input type="email" id="sign-up-email" placeholder="Email" required>
+      <input type="password" id="sign-up-password" placeholder="Password" required>
+      <button type="submit">Sign Up</button>
+      <p>Already have an account? <span class="switch-link" onclick="switchToSignIn()">Switch to Sign In</span></p>
+    </form>
+  </div>
 
   <script>
-    const form = document.getElementById("authForm");
-    const messageEl = document.getElementById("message");
-    const modeTitle = document.getElementById("modeTitle");
-    const submitBtn = document.getElementById("submitBtn");
-    const toggleBtn = document.getElementById("toggleBtn");
-    let mode = "signin";
-    let supabase = null;
+    // ====== Supabase 初始化 ======
+    const SUPABASE_URL = 'https://upmmwyyprnpyishumfie.supabase.co';
+    const SUPABASE_ANON_KEY = 'sb_publishable_kNgXkVfZMzZz_UwlwM81Pg_KVfrgZE6';
 
-    function setMessage(text) {
-      messageEl.textContent = text || "";
-    }
+    // 只声明这一次，绝不再重复
+    const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 
-    function setMode(nextMode) {
-      mode = nextMode;
-      const isSignIn = mode === "signin";
-      modeTitle.textContent = isSignIn ? "Sign In" : "Sign Up";
-      submitBtn.textContent = isSignIn ? "Sign In" : "Create Account";
-      toggleBtn.textContent = isSignIn ? "Switch to Sign Up" : "Switch to Sign In";
-      setMessage("");
-    }
+    // ====== 表单切换函数 ======
+    window.switchToSignUp = function() {
+      document.getElementById('sign-in-form').style.display = 'none';
+      document.getElementById('sign-up-form').style.display = 'block';
+      document.getElementById('form-title').textContent = 'Sign Up';
+    };
 
-    async function initSupabase() {
-      const configRes = await fetch("/api/config");
-      const config = await configRes.json();
-      if (!config.supabaseUrl || !config.supabaseAnonKey) {
-        throw new Error("Supabase public config is missing.");
-      }
-      supabase = window.supabase.createClient(config.supabaseUrl, config.supabaseAnonKey);
-    }
+    window.switchToSignIn = function() {
+      document.getElementById('sign-up-form').style.display = 'none';
+      document.getElementById('sign-in-form').style.display = 'block';
+      document.getElementById('form-title').textContent = 'Sign In';
+    };
 
-    form.addEventListener("submit", async (event) => {
+    // ====== 登录 ======
+    async function handleSignIn(event) {
       event.preventDefault();
-      if (!supabase) return;
-      setMessage("Working...");
-      const email = document.getElementById("email").value.trim();
-      const password = document.getElementById("password").value;
-
-      try {
-        if (mode === "signin") {
-          const { data, error } = await supabase.auth.signInWithPassword({ email, password });
-          if (error) throw error;
-          localStorage.setItem("ideaRadarAccessToken", data.session.access_token);
-          window.location.href = "index.html";
-        } else {
-          const { error } = await supabase.auth.signUp({ email, password });
-          if (error) throw error;
-          setMessage("Account created. You can sign in now.");
-          setMode("signin");
-        }
-      } catch (error) {
-        setMessage(error.message || "Authentication failed.");
+      const email = document.getElementById('sign-in-email').value;
+      const password = document.getElementById('sign-in-password').value;
+      const { data, error } = await supabase.auth.signInWithPassword({ email, password });
+      if (error) {
+        alert('Sign in failed: ' + error.message);
+        return false;
       }
-    });
+      window.location.href = 'index.html';
+      return false;
+    }
 
-    toggleBtn.addEventListener("click", () => {
-      setMode(mode === "signin" ? "signup" : "signin");
-    });
-
-    initSupabase().catch((error) => setMessage(error.message || "Failed to load auth config."));
+    // ====== 注册 ======
+    async function handleSignUp(event) {
+      event.preventDefault();
+      const email = document.getElementById('sign-up-email').value;
+      const password = document.getElementById('sign-up-password').value;
+      const { data, error } = await supabase.auth.signUp({ email, password });
+      if (error) {
+        alert('Sign up failed: ' + error.message);
+        return false;
+      }
+      alert('Sign up successful! You can now sign in.');
+      switchToSignIn();
+      return false;
+    }
   </script>
 </body>
 </html>
