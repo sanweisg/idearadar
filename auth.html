@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>IdeaRadar - Sign In</title>
+  <title>IdeaRadar - Sign In / Sign Up</title>
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
   <style>
     * { margin: 0; padding: 0; box-sizing: border-box; }
@@ -13,172 +13,108 @@
       font-family: -apple-system, BlinkMacSystemFont, sans-serif;
       display: flex; justify-content: center; align-items: center;
       min-height: 100vh;
-      position: relative;
-      overflow: hidden;
-      background:
-        radial-gradient(circle at 15% 20%, #1a2440 0%, transparent 38%),
-        radial-gradient(circle at 85% 0%, #1a2d57 0%, transparent 30%),
-        #0D0D0D;
-    }
-    body::before {
-      content: "";
-      position: fixed;
-      inset: 0;
-      pointer-events: none;
-      opacity: 0.15;
-      background-image:
-        linear-gradient(rgba(130, 160, 255, 0.1) 1px, transparent 1px),
-        linear-gradient(90deg, rgba(130, 160, 255, 0.1) 1px, transparent 1px);
-      background-size: 28px 28px;
-      mask-image: radial-gradient(circle at 50% 45%, black 0%, transparent 72%);
     }
     .container {
-      background: rgba(26, 26, 26, 0.75);
-      border: 1px solid rgba(255, 255, 255, 0.14);
-      box-shadow: 0 16px 36px rgba(0, 0, 0, 0.4);
-      backdrop-filter: blur(8px);
+      background: #1A1A1A;
       padding: 40px;
       border-radius: 14px;
       width: 100%;
       max-width: 400px;
       text-align: center;
     }
-    h1 {
-      font-size: 1.8rem;
-      margin-bottom: 8px;
-      background: linear-gradient(90deg, #e2e8f0 0%, #93c5fd 60%, #60a5fa 100%);
-      -webkit-background-clip: text;
-      background-clip: text;
-      color: transparent;
-    }
+    h2 { font-size: 1.4rem; margin-bottom: 16px; color: #fff; }
     .subtitle { color: #888; margin-bottom: 24px; font-size: 0.9rem; }
     input {
       display: block; width: 100%; padding: 12px; margin-bottom: 12px;
       border: 1px solid #333; border-radius: 8px; background: #0D0D0D;
       color: #fff; font-size: 1rem;
-      transition: border-color 0.2s ease, box-shadow 0.2s ease;
-    }
-    input:focus {
-      outline: none;
-      border-color: rgba(59, 130, 246, 0.8);
-      box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.25);
     }
     button {
       width: 100%; padding: 12px; background: #3B82F6; color: #fff;
       border: none; border-radius: 8px; font-size: 1rem; cursor: pointer;
       margin-bottom: 12px;
-      transition: transform 0.2s ease, background 0.2s ease, box-shadow 0.2s ease;
     }
-    button:hover { background: #2563EB; transform: translateY(-1px); box-shadow: 0 10px 18px rgba(37, 99, 235, 0.35); }
-    .switch-link {
-      color: #3B82F6;
-      cursor: pointer;
-      text-decoration: underline;
-      background: transparent;
-      border: none;
-      width: auto;
-      margin: 0;
-      padding: 0;
-      font: inherit;
-      box-shadow: none;
-    }
-    .back-link { display: block; margin-bottom: 20px; color: #888; text-decoration: none; }
+    button:hover { background: #2563EB; }
+    .switch-link { color: #3B82F6; cursor: pointer; text-decoration: underline; }
+    .back-link { display: block; margin-bottom: 20px; color: #888; text-decoration: none; text-align: left; }
+    .hidden { display: none !important; }
   </style>
 </head>
 <body>
   <div class="container">
     <a class="back-link" href="index.html">← Back to IdeaRadar</a>
-    <h1 id="form-title">Sign In</h1>
-    <p class="subtitle">Use your email and password to continue.</p>
+    <h2 id="form-title">Sign In to IdeaRadar</h2>
 
     <!-- 登录表单 -->
-    <form id="sign-in-form" onsubmit="return handleSignIn(event)" style="display: block;">
+    <form id="sign-in-form">
       <input type="email" id="sign-in-email" placeholder="Email" required>
       <input type="password" id="sign-in-password" placeholder="Password" required>
       <button type="submit">Sign In</button>
-      <p>Don't have an account? <button id="switchToSignUpBtn" class="switch-link" type="button">Switch to Sign Up</button></p>
+      <p>Don't have an account? <span class="switch-link" id="link-to-signup">Switch to Sign Up</span></p>
     </form>
 
     <!-- 注册表单（默认隐藏） -->
-    <form id="sign-up-form" onsubmit="return handleSignUp(event)" style="display: none;">
+    <form id="sign-up-form" class="hidden">
       <input type="email" id="sign-up-email" placeholder="Email" required>
       <input type="password" id="sign-up-password" placeholder="Password" required>
       <button type="submit">Sign Up</button>
-      <p>Already have an account? <button id="switchToSignInBtn" class="switch-link" type="button">Switch to Sign In</button></p>
+      <p>Already have an account? <span class="switch-link" id="link-to-signin">Switch to Sign In</span></p>
     </form>
   </div>
 
   <script>
-    let supabase = null;
+    // ====== Supabase 初始化（只声明一次） ======
+    const SUPABASE_URL = 'https://upmmwyyprnpyishumfie.supabase.co';
+    const SUPABASE_ANON_KEY = 'sb_publishable_kNgXkVfZMzZz_UwlwM81Pg_KVfrgZE6';
+    const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 
-    async function initSupabase() {
-      const response = await fetch("/api/config");
-      const config = await response.json();
-      if (!config.supabaseUrl || !config.supabaseAnonKey) {
-        throw new Error("Supabase public config is missing.");
-      }
-      supabase = window.supabase.createClient(config.supabaseUrl, config.supabaseAnonKey);
-    }
+    // ====== 表单切换逻辑 ======
+    const signInForm = document.getElementById('sign-in-form');
+    const signUpForm = document.getElementById('sign-up-form');
+    const formTitle = document.getElementById('form-title');
 
-    // ====== 表单切换函数 ======
-    window.switchToSignUp = function() {
-      document.getElementById('sign-in-form').style.display = 'none';
-      document.getElementById('sign-up-form').style.display = 'block';
-      document.getElementById('form-title').textContent = 'Sign Up';
-    };
+    document.getElementById('link-to-signup').addEventListener('click', function(e) {
+      e.preventDefault();
+      signInForm.classList.add('hidden');
+      signUpForm.classList.remove('hidden');
+      formTitle.textContent = 'Create Your IdeaRadar Account';
+    });
 
-    window.switchToSignIn = function() {
-      document.getElementById('sign-up-form').style.display = 'none';
-      document.getElementById('sign-in-form').style.display = 'block';
-      document.getElementById('form-title').textContent = 'Sign In';
-    };
+    document.getElementById('link-to-signin').addEventListener('click', function(e) {
+      e.preventDefault();
+      signUpForm.classList.add('hidden');
+      signInForm.classList.remove('hidden');
+      formTitle.textContent = 'Sign In to IdeaRadar';
+    });
 
-    // ====== 登录 ======
-    async function handleSignIn(event) {
-      event.preventDefault();
-      if (!supabase) {
-        alert("Authentication is not ready yet. Please try again.");
-        return false;
-      }
+    // ====== 登录处理 ======
+    signInForm.addEventListener('submit', async function(e) {
+      e.preventDefault();
       const email = document.getElementById('sign-in-email').value;
       const password = document.getElementById('sign-in-password').value;
       const { data, error } = await supabase.auth.signInWithPassword({ email, password });
       if (error) {
         alert('Sign in failed: ' + error.message);
-        return false;
+        return;
       }
       window.location.href = 'index.html';
-      return false;
-    }
+    });
 
-    // ====== 注册 ======
-    async function handleSignUp(event) {
-      event.preventDefault();
-      if (!supabase) {
-        alert("Authentication is not ready yet. Please try again.");
-        return false;
-      }
+    // ====== 注册处理 ======
+    signUpForm.addEventListener('submit', async function(e) {
+      e.preventDefault();
       const email = document.getElementById('sign-up-email').value;
       const password = document.getElementById('sign-up-password').value;
       const { data, error } = await supabase.auth.signUp({ email, password });
       if (error) {
         alert('Sign up failed: ' + error.message);
-        return false;
+        return;
       }
-      alert('Sign up successful! You can now sign in.');
-      switchToSignIn();
-      return false;
-    }
-
-    initSupabase().catch((error) => {
-      alert(error.message || "Failed to initialize authentication.");
-    });
-
-    document.getElementById("switchToSignUpBtn").addEventListener("click", function() {
-      window.switchToSignUp();
-    });
-    document.getElementById("switchToSignInBtn").addEventListener("click", function() {
-      window.switchToSignIn();
+      alert('Account created! You can now sign in.');
+      // 注册成功后切回登录表单
+      signUpForm.classList.add('hidden');
+      signInForm.classList.remove('hidden');
+      formTitle.textContent = 'Sign In to IdeaRadar';
     });
   </script>
 </body>
