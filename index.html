@@ -410,6 +410,29 @@
       }
     }
 
+        // 管理员直接生成报告（跳过 PayPal）
+        async function adminGenerateReport(post) {
+      const response = await fetch("/api/capture-order", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${accessToken}`,
+        },
+        body: JSON.stringify({
+          item_name: "Deep Report",
+          source_title: post.title || "",
+          source_content: post.selftext || "",
+        }),
+      });
+      const json = await response.json();
+      if (!response.ok) throw new Error(json.error || "Failed to generate report.");
+      if (json.report_id) {
+        window.location.href = `report.html?report_id=${encodeURIComponent(json.report_id)}`;
+      } else {
+        throw new Error("Report generation did not return a report ID.");
+      }
+    }
+
     function showReportPayPal(buttonId, post) {
       const container = document.getElementById(buttonId);
       if (!container) return;
@@ -477,6 +500,17 @@
             window.location.href = "auth.html";
             return;
           }
+          // ====== 管理员判断 ======
+          if (profileState && profileState.is_admin) {
+            try {
+              setStatus("Generating report as admin...");
+              await adminGenerateReport(post);
+            } catch (error) {
+              setStatus(error.message || "Failed to generate admin report.");
+            }
+            return;
+          }
+          // ====== 普通用户走 PayPal ======
           try {
             await ensurePayPalLoaded();
             showReportPayPal(`report-paypal-${idx}`, post);
@@ -485,7 +519,6 @@
           }
         });
       });
-    }
 
     function renderNetworkError(error) {
       const detail = error && error.message ? escapeHtml(error.message) : "Unknown error";

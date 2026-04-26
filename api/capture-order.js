@@ -158,11 +158,65 @@ export default async function handler(req, res) {
     return;
   }
 
-  const { orderID, item_name: itemName, source_title: sourceTitle, source_content: sourceContent } = req.body || {};
-  if (!orderID || !itemName) {
-    res.status(400).json({ error: "Missing orderID or item_name." });
-    return;
-  }
+    // ====== 新增：管理员免费生成 Deep Report ======
+    const { item_name: preItemName, source_title: preSourceTitle, source_content: preSourceContent } = req.body || {};
+  
+    if (preItemName === "Deep Report") {
+      // 查询用户是否是管理员
+      const { data: adminProfile, error: adminProfileError } = await supabaseAdmin
+        .from("profiles")
+        .select("is_admin")
+        .eq("id", authData.user.id)
+        .single();
+      
+      if (!adminProfileError && adminProfile && adminProfile.is_admin) {
+        // 管理员直接生成报告，跳过 PayPal
+        try {
+          const reportJson = await generateDeepReport(preSourceTitle, preSourceContent);
+          const { data: reportRow, error: insertError } = await supabaseAdmin
+            .from("reports")
+            .insert({
+              user_id: authData.user.id,
+              pain_point_title: String(preSourceTitle || ""),
+              report_content: reportJson,
+              price_paid: 0,
+              created_at: new Date().toISOString()
+            })
+            .select("id,report_content,created_at")
+            .single();
+          
+          if (insertError || !reportRow) {
+            throw new Error(`Failed to save report: ${insertError?.message || "unknown"}`);
+          }
+          
+          return res.status(200).json({
+            success: true,
+            item_name: "Deep Report",
+            admin_bypass: true,
+            report_id: reportRow.id,
+            report: reportRow.report_content,
+            created_at: reportRow.created_at
+          });
+        } catch (error) {
+          return res.status(500).json({
+            error: "Admin report generation failed.",
+            detail: error instanceof Error ? error.message : "Unknown error"
+          });
+        }
+      }
+    }
+    // ====== 新增结束 ======
+    const { orderID, item_name: itemName, source_title: sourceTitle, source_content: sourceContent } = req.body || {};
+    if (!itemName) {
+      res.status(400).json({ error: "Missing item_name." });
+      return;
+    }
+    // 注意：管理员 Deep Report 不需要 orderID，已经在上面处理了
+    if (!orderID && itemName !== "Deep Report") {
+      res.status(400).json({ error: "Missing orderID." });
+      return;
+    }
+    
   const config = PLAN_CONFIG[itemName];
   if (!config) {
     res.status(400).json({ error: "Unsupported item_name." });
