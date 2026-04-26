@@ -111,7 +111,7 @@ async function getAuthenticatedUser(req, res) {
 async function loadProfile(userId) {
   const { data, error } = await supabaseAdmin
     .from("profiles")
-    .select("id,search_credits,is_pro,pro_expiry_date,email")
+    .select("id,search_credits,is_pro,pro_expiry_date,email,is_admin")
     .eq("id", userId)
     .single();
   if (error) {
@@ -143,8 +143,9 @@ export default async function handler(req, res) {
   try {
     const profile = await loadProfile(auth.user.id);
     const proActive = isProActive(profile);
+    const isAdmin = Boolean(profile?.is_admin);
 
-    if (!proActive) {
+    if (!proActive && !isAdmin) {
       const credits = Number(profile.search_credits || 0);
       if (credits <= 0) {
         res.status(403).json({ error: "Insufficient credits. Please purchase more." });
@@ -196,6 +197,7 @@ export default async function handler(req, res) {
         is_pro: Boolean(latestProfile.is_pro),
         pro_expiry_date: latestProfile.pro_expiry_date,
         pro_active: isProActive(latestProfile),
+        is_admin: Boolean(latestProfile.is_admin),
       },
     });
   } catch (error) {

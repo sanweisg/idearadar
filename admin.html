@@ -1,0 +1,122 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>IdeaRadar Admin Records</title>
+  <style>
+    :root {
+      --bg: #0f1117;
+      --text: #f2f5ff;
+      --sub: #9ca7c2;
+      --card: rgba(255,255,255,0.03);
+      --border: rgba(255,255,255,0.12);
+    }
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      font-family: Inter, "Segoe UI", Roboto, Arial, sans-serif;
+      color: var(--text);
+      background:
+        radial-gradient(circle at 15% 20%, #1a2440 0%, transparent 38%),
+        radial-gradient(circle at 85% 0%, #1a2d57 0%, transparent 30%),
+        var(--bg);
+      padding: 24px 16px 40px;
+    }
+    .wrap { width: min(1100px, 100%); margin: 0 auto; }
+    .nav a {
+      color: var(--sub);
+      text-decoration: none;
+      margin-right: 12px;
+      font-weight: 600;
+    }
+    .card {
+      margin-top: 14px;
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 14px;
+      overflow-x: auto;
+    }
+    table { width: 100%; border-collapse: collapse; font-size: 0.88rem; }
+    th, td { border-bottom: 1px solid rgba(255,255,255,0.08); padding: 8px; text-align: left; }
+    th { color: #c6d4ff; }
+    .msg { color: #fbbf24; min-height: 20px; }
+  </style>
+</head>
+<body>
+  <div class="wrap">
+    <nav class="nav">
+      <a href="index.html">Search</a>
+      <a href="pricing.html">Pricing</a>
+      <a href="feedback.html">Feedback</a>
+    </nav>
+    <h1>Admin Records</h1>
+    <p id="msg" class="msg"></p>
+
+    <section class="card">
+      <h2>Users</h2>
+      <table id="usersTable">
+        <thead>
+          <tr><th>Email</th><th>Credits</th><th>Pro</th><th>Admin</th><th>Created</th></tr>
+        </thead>
+        <tbody></tbody>
+      </table>
+    </section>
+
+    <section class="card">
+      <h2>Reports</h2>
+      <table id="reportsTable">
+        <thead>
+          <tr><th>Item</th><th>Source Title</th><th>User ID</th><th>Created</th></tr>
+        </thead>
+        <tbody></tbody>
+      </table>
+    </section>
+  </div>
+
+  <script>
+    const msg = document.getElementById("msg");
+    const usersBody = document.querySelector("#usersTable tbody");
+    const reportsBody = document.querySelector("#reportsTable tbody");
+    const token = localStorage.getItem("ideaRadarAccessToken") || "";
+
+    function esc(v) {
+      return String(v ?? "").replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;");
+    }
+
+    async function init() {
+      if (!token) {
+        window.location.href = "auth.html";
+        return;
+      }
+      const res = await fetch("/api/admin-records", { headers: { Authorization: `Bearer ${token}` } });
+      const json = await res.json();
+      if (!res.ok) throw new Error(json.error || "Failed to load records.");
+
+      usersBody.innerHTML = (json.users || []).map((u) => `
+        <tr>
+          <td>${esc(u.email)}</td>
+          <td>${esc(u.search_credits)}</td>
+          <td>${u.is_pro ? "Yes" : "No"}</td>
+          <td>${u.is_admin ? "Yes" : "No"}</td>
+          <td>${esc(u.created_at)}</td>
+        </tr>
+      `).join("");
+
+      reportsBody.innerHTML = (json.reports || []).map((r) => `
+        <tr>
+          <td>${esc(r.item_name)}</td>
+          <td>${esc(r.source_title)}</td>
+          <td>${esc(r.user_id)}</td>
+          <td>${esc(r.created_at)}</td>
+        </tr>
+      `).join("");
+    }
+
+    init().catch((error) => {
+      msg.textContent = error.message || "Failed to load admin records.";
+    });
+  </script>
+</body>
+</html>

@@ -324,11 +324,26 @@
       const credits = Number(profileState.search_credits || 0);
       const proFlag = isProActive(profileState) ? "Pro active" : "Non-Pro";
       userEmailEl.textContent = profileState.email || "User";
-      creditsInfoEl.textContent = `${proFlag} | Credits: ${credits}`;
+      const adminFlag = profileState.is_admin ? "Admin" : "User";
+      creditsInfoEl.textContent = `${adminFlag} | ${proFlag} | Credits left: ${credits}`;
       userEmailEl.classList.remove("hidden");
       creditsInfoEl.classList.remove("hidden");
       logoutBtn.classList.remove("hidden");
       signInLink.classList.add("hidden");
+
+      let adminLink = document.getElementById("adminLink");
+      if (profileState.is_admin) {
+        if (!adminLink) {
+          adminLink = document.createElement("a");
+          adminLink.id = "adminLink";
+          adminLink.className = "small-link";
+          adminLink.href = "admin.html";
+          adminLink.textContent = "Admin";
+          logoutBtn.insertAdjacentElement("beforebegin", adminLink);
+        }
+      } else if (adminLink) {
+        adminLink.remove();
+      }
     }
 
     function getRecentSearches() {

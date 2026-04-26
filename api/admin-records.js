@@ -11,11 +11,6 @@ function getToken(req) {
   return authHeader.startsWith("Bearer ") ? authHeader.slice(7).trim() : "";
 }
 
-function isProActive(profile) {
-  if (!profile?.is_pro || !profile?.pro_expiry_date) return false;
-  return new Date(profile.pro_expiry_date).getTime() > Date.now();
-}
-
 export default async function handler(req, res) {
   if (req.method !== "GET") {
     res.status(405).json({ error: "Method not allowed" });
@@ -35,14 +30,32 @@ export default async function handler(req, res) {
     res.status(401).json({ error: "Invalid or expired token." });
     return;
   }
-  const { data, error } = await supabaseAdmin
+
+  const { data: me, error: meError } = await supabaseAdmin
     .from("profiles")
-    .select("email,search_credits,is_pro,pro_expiry_date,is_admin")
+    .select("is_admin")
     .eq("id", authData.user.id)
     .single();
-  if (error || !data) {
-    res.status(404).json({ error: "Profile not found." });
+  if (meError || !me?.is_admin) {
+    res.status(403).json({ error: "Admin access required." });
     return;
   }
-  res.status(200).json({ profile: { ...data, pro_active: isProActive(data) } });
+
+  const [{ data: users }, { data: reports }] = await Promise.all([
+    supabaseAdmin
+      .from("profiles")
+      .select("id,email,search_credits,is_pro,pro_expiry_date,is_admin,created_at")
+      .order("created_at", { ascending: false })
+      .limit(200),
+    supabaseAdmin
+      .from("reports")
+      .select("id,user_id,item_name,source_title,created_at")
+      .order("created_at", { ascending: false })
+      .limit(200),
+  ]);
+
+  res.status(200).json({
+    users: users || [],
+    reports: reports || [],
+  });
 }
