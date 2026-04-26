@@ -4,7 +4,6 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>IdeaRadar - Sign In / Sign Up</title>
-  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
   <style>
     * { margin: 0; padding: 0; box-sizing: border-box; }
     body {
@@ -62,33 +61,34 @@
     </form>
   </div>
 
-  <script>
-    // ====== Supabase 初始化（只声明一次） ======
+  <script type="module">
+    import { createClient } from 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/+esm';
+    
     const SUPABASE_URL = 'https://upmmwyyprnpyishumfie.supabase.co';
     const SUPABASE_ANON_KEY = 'sb_publishable_kNgXkVfZMzZz_UwlwM81Pg_KVfrgZE6';
-    const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+    const supabase = createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 
-    // ====== 表单切换逻辑 ======
     const signInForm = document.getElementById('sign-in-form');
     const signUpForm = document.getElementById('sign-up-form');
     const formTitle = document.getElementById('form-title');
 
-    document.getElementById('link-to-signup').addEventListener('click', function(e) {
+    // 切换函数
+    document.getElementById('link-to-signup').onclick = function(e) {
       e.preventDefault();
       signInForm.classList.add('hidden');
       signUpForm.classList.remove('hidden');
       formTitle.textContent = 'Create Your IdeaRadar Account';
-    });
+    };
 
-    document.getElementById('link-to-signin').addEventListener('click', function(e) {
+    document.getElementById('link-to-signin').onclick = function(e) {
       e.preventDefault();
       signUpForm.classList.add('hidden');
       signInForm.classList.remove('hidden');
       formTitle.textContent = 'Sign In to IdeaRadar';
-    });
+    };
 
-    // ====== 登录处理 ======
-    signInForm.addEventListener('submit', async function(e) {
+    // 登录
+    signInForm.onsubmit = async function(e) {
       e.preventDefault();
       const email = document.getElementById('sign-in-email').value;
       const password = document.getElementById('sign-in-password').value;
@@ -98,10 +98,10 @@
         return;
       }
       window.location.href = 'index.html';
-    });
+    };
 
-    // ====== 注册处理 ======
-    signUpForm.addEventListener('submit', async function(e) {
+    // 注册
+    signUpForm.onsubmit = async function(e) {
       e.preventDefault();
       const email = document.getElementById('sign-up-email').value;
       const password = document.getElementById('sign-up-password').value;
@@ -111,11 +111,10 @@
         return;
       }
       alert('Account created! You can now sign in.');
-      // 注册成功后切回登录表单
       signUpForm.classList.add('hidden');
       signInForm.classList.remove('hidden');
       formTitle.textContent = 'Sign In to IdeaRadar';
-    });
+    };
   </script>
 </body>
 </html>
