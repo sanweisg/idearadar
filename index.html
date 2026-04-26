@@ -682,6 +682,18 @@
     });
 
     renderRecentSearches();
+        // 尝试从本地存储恢复 token
+        (function restoreSessionFromLocal() {
+      const storedToken = localStorage.getItem("ideaRadarAccessToken");
+      if (storedToken && !accessToken) {
+        accessToken = storedToken;
+        // 异步尝试获取 profile，不阻塞页面渲染
+        loadProfile().catch(() => {
+          localStorage.removeItem("ideaRadarAccessToken");
+          accessToken = "";
+        });
+      }
+    })();
     initSupabaseSession()
       .catch((error) => {
         navLoading.classList.add("hidden");
