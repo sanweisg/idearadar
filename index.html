@@ -4,6 +4,7 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>IdeaRadar</title>
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
   <style>
     :root {
       --bg: #0f1117;
@@ -28,6 +29,20 @@
         radial-gradient(circle at 85% 0%, #1a2d57 0%, transparent 30%),
         var(--bg);
       padding: 24px 16px 42px;
+      position: relative;
+      overflow-x: hidden;
+    }
+    body::before {
+      content: "";
+      position: fixed;
+      inset: 0;
+      pointer-events: none;
+      opacity: 0.18;
+      background-image:
+        linear-gradient(rgba(130, 160, 255, 0.1) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(130, 160, 255, 0.1) 1px, transparent 1px);
+      background-size: 30px 30px;
+      mask-image: radial-gradient(circle at 50% 30%, black 0%, transparent 70%);
     }
     .container { width: min(980px, 100%); margin: 0 auto; text-align: center; }
     .topbar {
@@ -37,11 +52,20 @@
       flex-wrap: wrap;
       gap: 10px;
       margin-bottom: 22px;
+      padding: 12px 14px;
+      border-radius: 14px;
+      background: rgba(255, 255, 255, 0.03);
+      border: 1px solid rgba(255, 255, 255, 0.1);
+      backdrop-filter: blur(8px);
     }
     .brand {
       font-size: 1.2rem;
       font-weight: 800;
       letter-spacing: -0.01em;
+      background: linear-gradient(90deg, #dbeafe 0%, #93c5fd 55%, #60a5fa 100%);
+      -webkit-background-clip: text;
+      background-clip: text;
+      color: transparent;
     }
     .account {
       display: flex;
@@ -50,6 +74,12 @@
       flex-wrap: wrap;
       font-size: 0.86rem;
       color: var(--text-sub);
+    }
+    .hidden { display: none !important; }
+    .nav-loading {
+      color: var(--text-sub);
+      font-size: 0.82rem;
+      font-weight: 600;
     }
     .logout-btn, .small-link {
       border: 1px solid rgba(255, 255, 255, 0.2);
@@ -94,6 +124,19 @@
       padding: 10px;
       backdrop-filter: blur(4px);
       box-shadow: 0 10px 24px rgba(0, 0, 0, 0.22);
+      position: relative;
+    }
+    .search-row::after {
+      content: "";
+      position: absolute;
+      inset: -1px;
+      border-radius: 14px;
+      pointer-events: none;
+      background: linear-gradient(120deg, rgba(59, 130, 246, 0.35), rgba(56, 189, 248, 0.25), rgba(99, 102, 241, 0.3));
+      mask: linear-gradient(#000 0 0) content-box, linear-gradient(#000 0 0);
+      mask-composite: exclude;
+      padding: 1px;
+      opacity: 0.5;
     }
     .search-input {
       flex: 1;
@@ -148,8 +191,18 @@
       border: 1px solid rgba(255, 255, 255, 0.55);
       box-shadow: 0 8px 20px rgba(0, 0, 0, 0.15);
       transition: transform 0.22s ease, box-shadow 0.22s ease;
+      position: relative;
     }
     .result-card:hover { transform: translateY(-6px); box-shadow: var(--shadow); }
+    .result-card::before {
+      content: "";
+      position: absolute;
+      inset: 0;
+      border-radius: 14px;
+      pointer-events: none;
+      background: linear-gradient(140deg, rgba(59, 130, 246, 0.22), rgba(99, 102, 241, 0) 45%);
+      opacity: 0.75;
+    }
     .card-title { margin: 0 0 8px; font-size: 1.02rem; font-weight: 700; line-height: 1.35; }
     .meta { display: flex; flex-wrap: wrap; gap: 6px 12px; margin-bottom: 10px; font-size: 0.86rem; color: var(--card-sub); }
     .source { color: #3b67d1; font-weight: 600; }
@@ -187,10 +240,12 @@
     <header class="topbar">
       <div class="brand">IdeaRadar</div>
       <div class="account">
-        <span id="userEmail">Guest</span>
-        <span id="creditsInfo">Credits: -</span>
+        <span id="navLoading" class="nav-loading">Loading session...</span>
+        <span id="userEmail" class="hidden"></span>
+        <span id="creditsInfo" class="hidden"></span>
         <a class="small-link" href="pricing.html">Pricing</a>
-        <button id="logoutBtn" class="logout-btn" type="button">Logout</button>
+        <a id="signInLink" class="small-link hidden" href="auth.html">Sign In</a>
+        <button id="logoutBtn" class="logout-btn hidden" type="button">Logout</button>
       </div>
     </header>
 
@@ -225,13 +280,18 @@
     const userEmailEl = document.getElementById("userEmail");
     const creditsInfoEl = document.getElementById("creditsInfo");
     const logoutBtn = document.getElementById("logoutBtn");
+    const signInLink = document.getElementById("signInLink");
+    const navLoading = document.getElementById("navLoading");
 
     const defaultBtnText = searchBtn.textContent;
     const RECENT_SEARCHES_KEY = "ideaRadarRecentSearches";
     const MAX_RECENT_SEARCHES = 20;
-    let accessToken = localStorage.getItem("ideaRadarAccessToken") || "";
+    let accessToken = "";
     let paypalClientId = "";
     let profileState = null;
+    let isAuthenticated = false;
+    let supabaseClient = null;
+    let authSubscription = null;
 
     function setStatus(text) { statusMessage.textContent = text || ""; }
     function escapeHtml(value) {
@@ -251,15 +311,24 @@
       return new Date(profile.pro_expiry_date).getTime() > Date.now();
     }
     function updateAccountUi() {
-      if (!profileState) {
-        userEmailEl.textContent = "Guest";
-        creditsInfoEl.textContent = "Credits: -";
+      navLoading.classList.add("hidden");
+
+      if (!isAuthenticated || !profileState) {
+        userEmailEl.classList.add("hidden");
+        creditsInfoEl.classList.add("hidden");
+        logoutBtn.classList.add("hidden");
+        signInLink.classList.remove("hidden");
         return;
       }
+
       const credits = Number(profileState.search_credits || 0);
       const proFlag = isProActive(profileState) ? "Pro active" : "Non-Pro";
       userEmailEl.textContent = profileState.email || "User";
       creditsInfoEl.textContent = `${proFlag} | Credits: ${credits}`;
+      userEmailEl.classList.remove("hidden");
+      creditsInfoEl.classList.remove("hidden");
+      logoutBtn.classList.remove("hidden");
+      signInLink.classList.add("hidden");
     }
 
     function getRecentSearches() {
@@ -439,20 +508,49 @@
       return profileState;
     }
 
-    async function loadProfileFromSupabase() {
-      if (!accessToken) return;
+    async function initSupabaseSession() {
       const configRes = await fetch("/api/config");
       const config = await configRes.json();
-      if (!config.supabaseUrl || !config.supabaseAnonKey) return;
-      const authRes = await fetch(`${config.supabaseUrl}/auth/v1/user`, {
-        headers: {
-          apikey: config.supabaseAnonKey,
-          Authorization: `Bearer ${accessToken}`,
-        },
+      if (!config.supabaseUrl || !config.supabaseAnonKey) {
+        throw new Error("Supabase public config is missing.");
+      }
+      supabaseClient = window.supabase.createClient(config.supabaseUrl, config.supabaseAnonKey);
+      const { data: subData } = supabaseClient.auth.onAuthStateChange(async (_event, session) => {
+        if (!session) {
+          isAuthenticated = false;
+          accessToken = "";
+          profileState = null;
+          localStorage.removeItem("ideaRadarAccessToken");
+          updateAccountUi();
+          return;
+        }
+        isAuthenticated = true;
+        accessToken = session.access_token || "";
+        localStorage.setItem("ideaRadarAccessToken", accessToken);
+        try {
+          await loadProfile();
+        } catch (error) {
+          setStatus(error.message || "Failed to refresh profile.");
+        }
       });
-      if (!authRes.ok) throw new Error("Session expired. Please sign in again.");
-      const user = await authRes.json();
-      userEmailEl.textContent = user.email || "User";
+      authSubscription = subData?.subscription || null;
+
+      const { data, error } = await supabaseClient.auth.getSession();
+      if (error) {
+        throw new Error(error.message || "Failed to initialize auth session.");
+      }
+      const session = data?.session || null;
+      if (!session) {
+        isAuthenticated = false;
+        accessToken = "";
+        profileState = null;
+        updateAccountUi();
+        return;
+      }
+      isAuthenticated = true;
+      accessToken = session.access_token || "";
+      localStorage.setItem("ideaRadarAccessToken", accessToken);
+      await loadProfile();
     }
 
     async function handleSearch() {
@@ -461,8 +559,8 @@
         renderResults([]);
         return;
       }
-      if (!accessToken) {
-        setStatus("Please sign in first. Redirecting to auth page...");
+      if (!isAuthenticated || !accessToken) {
+        alert("Please sign in to search.");
         window.location.href = "auth.html";
         return;
       }
@@ -518,20 +616,31 @@
       if (event.key === "Enter") handleSearch();
     });
     logoutBtn.addEventListener("click", () => {
-      localStorage.removeItem("ideaRadarAccessToken");
-      accessToken = "";
-      profileState = null;
-      updateAccountUi();
-      setStatus("You have been logged out.");
-      window.location.href = "auth.html";
+      const next = async () => {
+        if (supabaseClient) {
+          await supabaseClient.auth.signOut();
+        }
+        if (authSubscription) {
+          authSubscription.unsubscribe();
+          authSubscription = null;
+        }
+        localStorage.removeItem("ideaRadarAccessToken");
+        window.location.reload();
+      };
+      next().catch(() => {
+        localStorage.removeItem("ideaRadarAccessToken");
+        window.location.reload();
+      });
     });
 
     renderRecentSearches();
-    loadProfileFromSupabase()
-      .then(() => loadProfile())
+    initSupabaseSession()
       .catch((error) => {
-        localStorage.removeItem("ideaRadarAccessToken");
+        navLoading.classList.add("hidden");
+        isAuthenticated = false;
         accessToken = "";
+        profileState = null;
+        updateAccountUi();
         setStatus(error.message || "Please sign in.");
       });
   </script>
