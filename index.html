@@ -17,11 +17,7 @@
       --card-sub: #5a6685;
       --shadow: 0 18px 40px rgba(10, 12, 20, 0.35);
     }
-
-    * {
-      box-sizing: border-box;
-    }
-
+    * { box-sizing: border-box; }
     body {
       margin: 0;
       min-height: 100vh;
@@ -31,16 +27,42 @@
         radial-gradient(circle at 15% 20%, #1a2440 0%, transparent 38%),
         radial-gradient(circle at 85% 0%, #1a2d57 0%, transparent 30%),
         var(--bg);
-      display: grid;
-      place-items: center;
-      padding: 28px 16px;
+      padding: 24px 16px 42px;
     }
-
-    .container {
-      width: min(920px, 100%);
-      text-align: center;
+    .container { width: min(980px, 100%); margin: 0 auto; text-align: center; }
+    .topbar {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      flex-wrap: wrap;
+      gap: 10px;
+      margin-bottom: 22px;
     }
-
+    .brand {
+      font-size: 1.2rem;
+      font-weight: 800;
+      letter-spacing: -0.01em;
+    }
+    .account {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      flex-wrap: wrap;
+      font-size: 0.86rem;
+      color: var(--text-sub);
+    }
+    .logout-btn, .small-link {
+      border: 1px solid rgba(255, 255, 255, 0.2);
+      background: rgba(255, 255, 255, 0.05);
+      color: var(--text-main);
+      border-radius: 999px;
+      padding: 6px 12px;
+      font-size: 0.8rem;
+      font-weight: 700;
+      cursor: pointer;
+      text-decoration: none;
+    }
+    .logout-btn:hover, .small-link:hover { background: rgba(91, 155, 255, 0.2); border-color: rgba(91, 155, 255, 0.6); }
     h1 {
       margin: 0;
       font-size: clamp(2rem, 4.5vw, 3.1rem);
@@ -48,16 +70,21 @@
       letter-spacing: -0.02em;
       font-weight: 800;
     }
-
     .subtitle {
       margin: 14px auto 0;
       font-size: clamp(1rem, 2.2vw, 1.18rem);
       color: var(--text-sub);
       max-width: 680px;
     }
-
+    .status-msg {
+      margin: 14px auto 0;
+      max-width: 700px;
+      color: #fbbf24;
+      font-size: 0.9rem;
+      min-height: 22px;
+    }
     .search-row {
-      margin: 32px auto 0;
+      margin: 10px auto 0;
       width: min(700px, 100%);
       display: flex;
       gap: 12px;
@@ -68,32 +95,18 @@
       backdrop-filter: blur(4px);
       box-shadow: 0 10px 24px rgba(0, 0, 0, 0.22);
     }
-
     .search-input {
       flex: 1;
-      border: none;
+      border: 1px solid transparent;
       outline: none;
       border-radius: 10px;
       background: var(--bg-soft);
       color: var(--text-main);
       padding: 14px 16px;
       font-size: 1rem;
-      transition: box-shadow 0.2s ease, border-color 0.2s ease;
-      border: 1px solid transparent;
     }
-
-    .search-input::placeholder {
-      color: #7482a4;
-    }
-
-    .search-input:focus {
-      border-color: rgba(59, 130, 246, 0.75);
-      box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.22);
-    }
-
     .search-btn {
       border: none;
-      outline: none;
       cursor: pointer;
       border-radius: 10px;
       padding: 0 22px;
@@ -102,46 +115,15 @@
       color: white;
       background: var(--accent);
       box-shadow: 0 6px 16px rgba(59, 130, 246, 0.35);
-      transition: background 0.2s ease, transform 0.2s ease, box-shadow 0.2s ease;
     }
-
-    .search-btn:hover {
-      background: var(--accent-dark);
-      transform: translateY(-1px);
-      box-shadow: 0 10px 24px rgba(91, 155, 255, 0.5);
+    .search-btn:hover { background: var(--accent-dark); }
+    .search-input:focus {
+      border-color: rgba(59, 130, 246, 0.75);
+      box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.22);
     }
-
-    .search-btn:active {
-      transform: translateY(0);
-    }
-
-    .results {
-      margin-top: 28px;
-      display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
-      gap: 16px;
-      text-align: left;
-    }
-
-    .recent-searches {
-      margin: 14px auto 0;
-      width: min(700px, 100%);
-      text-align: left;
-    }
-
-    .recent-title {
-      margin: 0 0 10px;
-      color: var(--text-sub);
-      font-size: 0.9rem;
-      font-weight: 600;
-    }
-
-    .recent-tags {
-      display: flex;
-      flex-wrap: wrap;
-      gap: 8px;
-    }
-
+    .recent-searches { margin: 14px auto 0; width: min(700px, 100%); text-align: left; }
+    .recent-title { margin: 0 0 10px; color: var(--text-sub); font-size: 0.9rem; font-weight: 600; }
+    .recent-tags { display: flex; flex-wrap: wrap; gap: 8px; }
     .recent-tag {
       border: 1px solid rgba(255, 255, 255, 0.22);
       background: rgba(255, 255, 255, 0.06);
@@ -150,15 +132,14 @@
       padding: 6px 12px;
       font-size: 0.84rem;
       cursor: pointer;
-      transition: background 0.18s ease, border-color 0.18s ease, transform 0.18s ease;
     }
-
-    .recent-tag:hover {
-      background: rgba(59, 130, 246, 0.2);
-      border-color: rgba(91, 155, 255, 0.8);
-      transform: translateY(-1px);
+    .results {
+      margin-top: 28px;
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+      gap: 16px;
+      text-align: left;
     }
-
     .result-card {
       background: var(--card);
       color: var(--card-text);
@@ -168,81 +149,57 @@
       box-shadow: 0 8px 20px rgba(0, 0, 0, 0.15);
       transition: transform 0.22s ease, box-shadow 0.22s ease;
     }
-
-    .result-card:hover {
-      transform: translateY(-6px);
-      box-shadow: var(--shadow);
-    }
-
-    .card-title {
-      margin: 0 0 8px;
-      font-size: 1.02rem;
+    .result-card:hover { transform: translateY(-6px); box-shadow: var(--shadow); }
+    .card-title { margin: 0 0 8px; font-size: 1.02rem; font-weight: 700; line-height: 1.35; }
+    .meta { display: flex; flex-wrap: wrap; gap: 6px 12px; margin-bottom: 10px; font-size: 0.86rem; color: var(--card-sub); }
+    .source { color: #3b67d1; font-weight: 600; }
+    .heat { font-weight: 600; }
+    .desc { margin: 0; color: #3e4a67; font-size: 0.92rem; line-height: 1.55; }
+    .report-btn {
+      width: 100%;
+      margin-top: 12px;
+      border: none;
+      border-radius: 10px;
+      background: #3b82f6;
+      color: #fff;
       font-weight: 700;
-      line-height: 1.35;
+      padding: 10px 12px;
+      cursor: pointer;
+      font-size: 0.88rem;
     }
-
-    .meta {
-      display: flex;
-      flex-wrap: wrap;
-      gap: 6px 12px;
-      margin-bottom: 10px;
-      font-size: 0.86rem;
-      color: var(--card-sub);
-    }
-
-    .source {
-      color: #3b67d1;
-      font-weight: 600;
-    }
-
-    .heat {
-      font-weight: 600;
-    }
-
-    .desc {
-      margin: 0;
-      color: #3e4a67;
-      font-size: 0.92rem;
-      line-height: 1.55;
-    }
-
-    .page-footer {
-      margin-top: 36px;
-      padding-top: 8px;
-    }
-
+    .report-btn:hover { background: #5b9bff; }
+    .paypal-area { margin-top: 10px; }
+    .page-footer { margin-top: 36px; display: flex; gap: 10px; justify-content: center; flex-wrap: wrap; }
     .footer-link {
-      display: inline-block;
       font-size: 0.88rem;
       font-weight: 600;
       color: var(--text-sub);
       text-decoration: none;
-      transition: color 0.18s ease;
+      border: 1px solid rgba(255, 255, 255, 0.15);
+      padding: 7px 12px;
+      border-radius: 999px;
     }
-
-    .footer-link:hover {
-      color: var(--accent-dark);
-    }
-
-    .footer-link:focus-visible {
-      outline: 2px solid rgba(59, 130, 246, 0.6);
-      outline-offset: 3px;
-      border-radius: 4px;
-    }
+    .footer-link:hover { color: var(--accent-dark); border-color: rgba(91, 155, 255, 0.6); }
   </style>
 </head>
 <body>
   <main class="container">
+    <header class="topbar">
+      <div class="brand">IdeaRadar</div>
+      <div class="account">
+        <span id="userEmail">Guest</span>
+        <span id="creditsInfo">Credits: -</span>
+        <a class="small-link" href="pricing.html">Pricing</a>
+        <button id="logoutBtn" class="logout-btn" type="button">Logout</button>
+      </div>
+    </header>
+
     <h1>Find Startup Ideas in One Search</h1>
     <p class="subtitle">Discover real pain points from Reddit, powered by AI</p>
+    <p id="statusMessage" class="status-msg"></p>
 
     <div class="search-row">
-      <input
-        id="searchInput"
-        class="search-input"
-        type="text"
-        placeholder="Try: remote team productivity, pet health, travel planning..."
-      />
+      <input id="searchInput" class="search-input" type="text" placeholder="Try: remote team productivity, pet health, travel planning..." />
       <button id="searchBtn" class="search-btn" type="button">Search</button>
     </div>
 
@@ -250,11 +207,12 @@
       <p class="recent-title">Recent searches</p>
       <div id="recentTags" class="recent-tags"></div>
     </section>
-
     <section id="results" class="results"></section>
 
     <nav class="page-footer" aria-label="More">
-      <a class="footer-link" href="feedback.html">Send feedback →</a>
+      <a class="footer-link" href="feedback.html">Feedback</a>
+      <a class="footer-link" href="pricing.html">Pricing</a>
+      <a class="footer-link" href="report.html">Open report by ID</a>
     </nav>
   </main>
 
@@ -263,17 +221,45 @@
     const searchInput = document.getElementById("searchInput");
     const results = document.getElementById("results");
     const recentTags = document.getElementById("recentTags");
+    const statusMessage = document.getElementById("statusMessage");
+    const userEmailEl = document.getElementById("userEmail");
+    const creditsInfoEl = document.getElementById("creditsInfo");
+    const logoutBtn = document.getElementById("logoutBtn");
+
     const defaultBtnText = searchBtn.textContent;
     const RECENT_SEARCHES_KEY = "ideaRadarRecentSearches";
     const MAX_RECENT_SEARCHES = 20;
+    let accessToken = localStorage.getItem("ideaRadarAccessToken") || "";
+    let paypalClientId = "";
+    let profileState = null;
 
+    function setStatus(text) { statusMessage.textContent = text || ""; }
     function escapeHtml(value) {
-      return String(value)
-        .replace(/&/g, "&amp;")
-        .replace(/</g, "&lt;")
-        .replace(/>/g, "&gt;")
-        .replace(/"/g, "&quot;")
-        .replace(/'/g, "&#39;");
+      return String(value).replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/"/g, "&quot;").replace(/'/g, "&#39;");
+    }
+    function starsFromPainIntensity(value) {
+      const n = Number(value);
+      if (!Number.isFinite(n)) return "";
+      if (n >= 1 && n <= 3) return "⭐";
+      if (n >= 4 && n <= 6) return "⭐⭐";
+      if (n >= 7 && n <= 8) return "⭐⭐⭐";
+      if (n >= 9 && n <= 10) return "⭐⭐⭐⭐";
+      return "";
+    }
+    function isProActive(profile) {
+      if (!profile || !profile.is_pro || !profile.pro_expiry_date) return false;
+      return new Date(profile.pro_expiry_date).getTime() > Date.now();
+    }
+    function updateAccountUi() {
+      if (!profileState) {
+        userEmailEl.textContent = "Guest";
+        creditsInfoEl.textContent = "Credits: -";
+        return;
+      }
+      const credits = Number(profileState.search_credits || 0);
+      const proFlag = isProActive(profileState) ? "Pro active" : "Non-Pro";
+      userEmailEl.textContent = profileState.email || "User";
+      creditsInfoEl.textContent = `${proFlag} | Credits: ${credits}`;
     }
 
     function getRecentSearches() {
@@ -281,189 +267,273 @@
         const raw = localStorage.getItem(RECENT_SEARCHES_KEY);
         const parsed = raw ? JSON.parse(raw) : [];
         return Array.isArray(parsed) ? parsed : [];
-      } catch (error) {
-        return [];
-      }
+      } catch { return []; }
     }
-
     function saveRecentSearches(keywords) {
       localStorage.setItem(RECENT_SEARCHES_KEY, JSON.stringify(keywords.slice(0, MAX_RECENT_SEARCHES)));
     }
-
     function renderRecentSearches() {
       const keywords = getRecentSearches();
-      if (!keywords.length) {
-        recentTags.innerHTML = "";
-        return;
-      }
-
-      recentTags.innerHTML = keywords
-        .map((keyword) => {
-          const safeKeyword = escapeHtml(keyword);
-          return `<button class="recent-tag" type="button" data-keyword="${safeKeyword}">${safeKeyword}</button>`;
-        })
-        .join("");
+      recentTags.innerHTML = keywords.map((keyword) => {
+        const safe = escapeHtml(keyword);
+        return `<button class="recent-tag" type="button" data-keyword="${safe}">${safe}</button>`;
+      }).join("");
     }
-
     function pushRecentSearch(keyword) {
       const value = keyword.trim();
-      if (!value) {
-        return;
-      }
+      if (!value) return;
       const list = getRecentSearches().filter((item) => item.toLowerCase() !== value.toLowerCase());
       list.unshift(value);
       saveRecentSearches(list);
       renderRecentSearches();
     }
 
-    function truncateText(text, maxLength) {
-      if (!text) {
-        return "No description available...";
+    async function ensurePayPalLoaded() {
+      if (window.paypal) return;
+      if (!paypalClientId) {
+        const configRes = await fetch("/api/config");
+        const config = await configRes.json();
+        paypalClientId = config.paypalClientId || "";
       }
-      const trimmed = text.replace(/\s+/g, " ").trim();
-      if (!trimmed) {
-        return "No description available...";
-      }
-      if (trimmed.length <= maxLength) {
-        return `${trimmed}...`;
-      }
-      return `${trimmed.slice(0, maxLength)}...`;
+      if (!paypalClientId) throw new Error("PAYPAL_CLIENT_ID is not configured.");
+      await new Promise((resolve, reject) => {
+        const s = document.createElement("script");
+        s.src = `https://www.paypal.com/sdk/js?client-id=${encodeURIComponent(paypalClientId)}&currency=USD`;
+        s.onload = resolve;
+        s.onerror = () => reject(new Error("Failed to load PayPal SDK."));
+        document.head.appendChild(s);
+      });
     }
 
-    function starsFromPainIntensity(value) {
-      const n = Number(value);
-      if (!Number.isFinite(n)) {
-        return "";
+    async function captureReportOrder(orderID, post) {
+      const response = await fetch("/api/capture-order", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${accessToken}`,
+        },
+        body: JSON.stringify({
+          orderID,
+          item_name: "Deep Report",
+          source_title: post.title || "",
+          source_content: post.selftext || "",
+        }),
+      });
+      const json = await response.json();
+      if (!response.ok) throw new Error(json.error || "Failed to capture report payment.");
+      if (json.report_id) {
+        window.location.href = `report.html?report_id=${encodeURIComponent(json.report_id)}`;
       }
-      if (n >= 1 && n <= 3) return "⭐";
-      if (n >= 4 && n <= 6) return "⭐⭐";
-      if (n >= 7 && n <= 8) return "⭐⭐⭐";
-      if (n >= 9 && n <= 10) return "⭐⭐⭐⭐";
-      return "";
+    }
+
+    function showReportPayPal(buttonId, post) {
+      const container = document.getElementById(buttonId);
+      if (!container) return;
+      container.innerHTML = "";
+      window.paypal.Buttons({
+        style: { layout: "horizontal", color: "blue", shape: "pill", label: "paypal" },
+        createOrder: (_, actions) => actions.order.create({
+          purchase_units: [
+            {
+              amount: { currency_code: "USD", value: "14.99" },
+              description: "Deep Report",
+              custom_id: JSON.stringify({ item_name: "Deep Report" }),
+            },
+          ],
+        }),
+        onApprove: async (data) => {
+          try {
+            await captureReportOrder(data.orderID, post);
+          } catch (error) {
+            setStatus(error.message || "Failed to generate deep report.");
+          }
+        },
+        onError: () => setStatus("PayPal checkout failed."),
+      }).render(`#${buttonId}`);
     }
 
     function renderResults(posts) {
       if (!posts.length) {
-        results.innerHTML = `
-          <article class="result-card">
-            <h3 class="card-title">No results found. Try a different search.</h3>
-          </article>
-        `;
+        results.innerHTML = `<article class="result-card"><h3 class="card-title">No results found. Try a different search.</h3></article>`;
         return;
       }
 
-      results.innerHTML = posts
-        .map((post) => {
-          const title = escapeHtml(post.title || "Untitled post");
-          const score = Number.isFinite(post.score) ? post.score : 0;
-          const permalink = post.permalink || "https://www.reddit.com/r/SomebodyMakeThis/";
-          const ai = post.ai || {};
-          const painIntensity = Number.isFinite(ai.pain_intensity) ? ai.pain_intensity : null;
-          const attentionScore = Number.isFinite(ai.attention_score) ? ai.attention_score : null;
-          const stars = starsFromPainIntensity(painIntensity);
-          const summary = typeof ai.summary === "string" && ai.summary.trim()
-            ? ai.summary.trim()
-            : "AI summary unavailable.";
-          const safeSummary = escapeHtml(summary);
+      results.innerHTML = posts.map((post, idx) => {
+        const title = escapeHtml(post.title || "Untitled post");
+        const permalink = escapeHtml(post.permalink || "https://www.reddit.com/r/SomebodyMakeThis/");
+        const ai = post.ai || {};
+        const stars = starsFromPainIntensity(ai.pain_intensity);
+        const heat = Number.isFinite(ai.attention_score) ? `🔥 ${ai.attention_score}/10 heat` : "Heat: unavailable";
+        const summary = escapeHtml(ai.summary && String(ai.summary).trim() ? ai.summary : "AI summary unavailable.");
+        const paypalId = `report-paypal-${idx}`;
 
-          return `
-            <article class="result-card">
-              <h3 class="card-title">
-                <a href="${escapeHtml(permalink)}" target="_blank" rel="noopener noreferrer" style="color: inherit; text-decoration: none;">
-                  ${title}
-                </a>
-              </h3>
-              <div class="meta">
-                <span class="source">Reddit</span>
-                ${Number.isFinite(attentionScore)
-                  ? `<span class="heat">🔥 ${attentionScore}/10 热度</span>`
-                  : `<span class="heat">热度: 暂无</span>`}
-                ${stars ? `<span class="heat">Pain: ${stars}</span>` : `<span class="heat">Pain: —</span>`}
-              </div>
-              <p class="desc">${safeSummary}</p>
-            </article>
-          `;
-        })
-        .join("");
+        return `
+          <article class="result-card">
+            <h3 class="card-title">
+              <a href="${permalink}" target="_blank" rel="noopener noreferrer" style="color: inherit; text-decoration: none;">${title}</a>
+            </h3>
+            <div class="meta">
+              <span class="source">Reddit</span>
+              <span class="heat">${escapeHtml(heat)}</span>
+              <span class="heat">${stars ? `Pain: ${stars}` : "Pain: -"}</span>
+            </div>
+            <p class="desc">AI Summary: ${summary}</p>
+            <button class="report-btn" type="button" data-report-index="${idx}">📄 Generate Deep Report $14.99</button>
+            <div class="paypal-area" id="${paypalId}" data-paypal-slot></div>
+          </article>
+        `;
+      }).join("");
+
+      results.querySelectorAll(".report-btn").forEach((btn) => {
+        btn.addEventListener("click", async () => {
+          const idx = Number(btn.getAttribute("data-report-index"));
+          const post = posts[idx];
+          if (!accessToken) {
+            setStatus("Please sign in first.");
+            window.location.href = "auth.html";
+            return;
+          }
+          try {
+            await ensurePayPalLoaded();
+            showReportPayPal(`report-paypal-${idx}`, post);
+          } catch (error) {
+            setStatus(error.message || "Unable to start PayPal checkout.");
+          }
+        });
+      });
     }
 
     function renderNetworkError(error) {
-      const detail = (error && error.message) ? escapeHtml(error.message) : "Unknown error";
+      const detail = error && error.message ? escapeHtml(error.message) : "Unknown error";
       results.innerHTML = `
         <article class="result-card">
           <h3 class="card-title">Something went wrong.</h3>
-          <p class="desc">Please try again in a moment.</p>
+          <p class="desc">Please try again shortly.</p>
           <p class="desc">Details: ${detail}</p>
         </article>
       `;
     }
 
-    async function fetchRedditPosts(keyword) {
-      const apiUrl = `/api/search?query=${encodeURIComponent(keyword)}`;
-      const response = await fetch(apiUrl);
-      if (!response.ok) {
-        let message = `API request failed: ${response.status}`;
-        try {
-          const errorData = await response.json();
-          if (errorData && errorData.error) {
-            message = `${message} - ${errorData.error}`;
-          }
-        } catch (error) {
-          // Ignore JSON parse failures and keep default message.
-        }
-        throw new Error(message);
+    async function fetchSearch(keyword) {
+      const response = await fetch(`/api/search?query=${encodeURIComponent(keyword)}`, {
+        headers: { Authorization: `Bearer ${accessToken}` },
+      });
+      const json = await response.json();
+      if (!response.ok) throw new Error(json.error || `API request failed: ${response.status}`);
+      if (json.profile) {
+        profileState = json.profile;
+        updateAccountUi();
       }
-      return await response.json();
+      return json;
+    }
+
+    async function loadProfile() {
+      if (!accessToken) return null;
+      const response = await fetch("/api/profile", {
+        headers: { Authorization: `Bearer ${accessToken}` },
+      });
+      const json = await response.json();
+      if (!response.ok) throw new Error(json.error || "Failed to load profile.");
+      profileState = json.profile || null;
+      updateAccountUi();
+      return profileState;
+    }
+
+    async function loadProfileFromSupabase() {
+      if (!accessToken) return;
+      const configRes = await fetch("/api/config");
+      const config = await configRes.json();
+      if (!config.supabaseUrl || !config.supabaseAnonKey) return;
+      const authRes = await fetch(`${config.supabaseUrl}/auth/v1/user`, {
+        headers: {
+          apikey: config.supabaseAnonKey,
+          Authorization: `Bearer ${accessToken}`,
+        },
+      });
+      if (!authRes.ok) throw new Error("Session expired. Please sign in again.");
+      const user = await authRes.json();
+      userEmailEl.textContent = user.email || "User";
     }
 
     async function handleSearch() {
       const keyword = searchInput.value.trim();
       if (!keyword) {
-        results.innerHTML = `
-          <article class="result-card">
-            <h3 class="card-title">No results found. Try a different search.</h3>
-          </article>
-        `;
+        renderResults([]);
+        return;
+      }
+      if (!accessToken) {
+        setStatus("Please sign in first. Redirecting to auth page...");
+        window.location.href = "auth.html";
+        return;
+      }
+
+      if (!profileState) {
+        try {
+          await loadProfile();
+        } catch (error) {
+          setStatus(error.message || "Please sign in first.");
+          window.location.href = "auth.html";
+          return;
+        }
+      }
+
+      if (profileState && !isProActive(profileState) && Number(profileState.search_credits || 0) <= 0) {
+        setStatus("You have no search credits. Please upgrade.");
+        results.innerHTML = `<article class="result-card"><p class="desc">You have no search credits. Please <a href="pricing.html">upgrade</a>.</p></article>`;
         return;
       }
 
       searchBtn.textContent = "Searching...";
       searchBtn.disabled = true;
+      setStatus("");
       pushRecentSearch(keyword);
 
       try {
-        const json = await fetchRedditPosts(keyword);
-        const posts = (json && Array.isArray(json.results)) ? json.results : [];
+        const json = await fetchSearch(keyword);
+        const posts = Array.isArray(json.results) ? json.results : [];
         renderResults(posts);
       } catch (error) {
-        renderNetworkError(error);
+        if ((error.message || "").toLowerCase().includes("insufficient credits")) {
+          setStatus("You have no search credits. Please upgrade.");
+          results.innerHTML = `<article class="result-card"><p class="desc">You have no search credits. Please <a href="pricing.html">upgrade</a>.</p></article>`;
+        } else {
+          renderNetworkError(error);
+        }
       } finally {
         searchBtn.textContent = defaultBtnText;
         searchBtn.disabled = false;
       }
     }
 
-    searchBtn.addEventListener("click", handleSearch);
-    searchInput.addEventListener("keydown", (event) => {
-      if (event.key === "Enter") {
-        handleSearch();
-      }
-    });
-
     recentTags.addEventListener("click", (event) => {
       const target = event.target;
-      if (!(target instanceof HTMLElement)) {
-        return;
-      }
+      if (!(target instanceof HTMLElement)) return;
       const keyword = target.getAttribute("data-keyword");
-      if (!keyword) {
-        return;
-      }
+      if (!keyword) return;
       searchInput.value = keyword;
       searchInput.focus();
     });
+    searchBtn.addEventListener("click", handleSearch);
+    searchInput.addEventListener("keydown", (event) => {
+      if (event.key === "Enter") handleSearch();
+    });
+    logoutBtn.addEventListener("click", () => {
+      localStorage.removeItem("ideaRadarAccessToken");
+      accessToken = "";
+      profileState = null;
+      updateAccountUi();
+      setStatus("You have been logged out.");
+      window.location.href = "auth.html";
+    });
 
     renderRecentSearches();
+    loadProfileFromSupabase()
+      .then(() => loadProfile())
+      .catch((error) => {
+        localStorage.removeItem("ideaRadarAccessToken");
+        accessToken = "";
+        setStatus(error.message || "Please sign in.");
+      });
   </script>
 </body>
 </html>

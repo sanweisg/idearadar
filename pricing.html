@@ -1,0 +1,218 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>IdeaRadar Pricing</title>
+  <style>
+    :root {
+      --bg: #0f1117;
+      --card: #171b24;
+      --text-main: #f2f5ff;
+      --text-sub: #9ca7c2;
+      --accent: #3b82f6;
+      --accent-hover: #5b9bff;
+      --border: rgba(255, 255, 255, 0.12);
+    }
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      color: var(--text-main);
+      font-family: Inter, "Segoe UI", Roboto, Arial, sans-serif;
+      background:
+        radial-gradient(circle at 15% 20%, #1a2440 0%, transparent 38%),
+        radial-gradient(circle at 85% 0%, #1a2d57 0%, transparent 30%),
+        var(--bg);
+      padding: 26px 16px 64px;
+    }
+    .wrap { width: min(1100px, 100%); margin: 0 auto; }
+    .top {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      flex-wrap: wrap;
+      gap: 12px;
+      margin-bottom: 22px;
+    }
+    .brand { font-size: 1.2rem; font-weight: 800; }
+    .nav a {
+      color: var(--text-sub);
+      text-decoration: none;
+      margin-left: 14px;
+      font-size: 0.9rem;
+      font-weight: 600;
+    }
+    .nav a:hover { color: var(--accent-hover); }
+    h1 { margin: 0; font-size: clamp(1.8rem, 4vw, 2.4rem); }
+    .subtitle { margin: 10px 0 0; color: var(--text-sub); }
+    .grid {
+      margin-top: 24px;
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+      gap: 14px;
+    }
+    .plan {
+      border: 1px solid var(--border);
+      background: rgba(255, 255, 255, 0.03);
+      border-radius: 14px;
+      padding: 16px;
+      box-shadow: 0 10px 24px rgba(0, 0, 0, 0.2);
+    }
+    .plan.popular {
+      border-color: rgba(59, 130, 246, 0.65);
+      box-shadow: 0 14px 28px rgba(59, 130, 246, 0.18);
+    }
+    .badge {
+      display: inline-block;
+      margin-bottom: 8px;
+      border-radius: 999px;
+      padding: 4px 10px;
+      font-size: 0.74rem;
+      font-weight: 700;
+      background: rgba(59, 130, 246, 0.24);
+      color: #bfdbfe;
+    }
+    .plan h2 { margin: 0; font-size: 1.05rem; }
+    .price { margin: 8px 0; font-size: 1.22rem; font-weight: 800; }
+    .desc { margin: 0 0 12px; color: var(--text-sub); font-size: 0.9rem; line-height: 1.45; }
+    .paypal-slot { min-height: 44px; }
+    .note { margin-top: 18px; color: var(--text-sub); font-size: 0.86rem; }
+    .msg { margin-top: 8px; color: #fbbf24; font-size: 0.86rem; min-height: 20px; }
+  </style>
+</head>
+<body>
+  <div class="wrap">
+    <div class="top">
+      <div class="brand">IdeaRadar</div>
+      <nav class="nav">
+        <a href="index.html">Search</a>
+        <a href="feedback.html">Feedback</a>
+        <a href="auth.html">Auth</a>
+      </nav>
+    </div>
+    <h1>Pricing</h1>
+    <p class="subtitle">Choose a plan to unlock more searches and reporting capabilities.</p>
+    <p class="msg" id="message"></p>
+    <section id="plans" class="grid"></section>
+    <p class="note">All payments are securely handled by PayPal.</p>
+  </div>
+
+  <script>
+    const plans = [
+      { title: "Free Trial", item_name: "Free Trial", price: "$0", amount: "0.00", desc: "2 lifetime searches, basic AI analysis", credits: 0, paid: false },
+      { title: "Single Search", item_name: "Single Search", price: "$5.00", amount: "5.00", desc: "1 search", credits: 1, paid: true },
+      { title: "Explorer Pack", item_name: "Explorer Pack", price: "$20.00", amount: "20.00", desc: "5 searches, save 20%", credits: 5, paid: true, popular: true },
+      { title: "Builder Pack", item_name: "Builder Pack", price: "$45.00", amount: "45.00", desc: "15 searches, save 40%", credits: 15, paid: true },
+      { title: "Founder Pack", item_name: "Founder Pack", price: "$90.00", amount: "90.00", desc: "45 searches, save 60%", credits: 45, paid: true },
+      { title: "Pro Monthly", item_name: "Pro Monthly", price: "$9.99/mo", amount: "9.99", desc: "5 searches per day, unlimited AI analysis", credits: 0, paid: true },
+      { title: "Deep Report", item_name: "Deep Report", price: "$14.99", amount: "14.99", desc: "Single pain-point deep report, triggered from result cards", credits: 0, paid: true },
+    ];
+
+    const messageEl = document.getElementById("message");
+    const plansEl = document.getElementById("plans");
+    const token = localStorage.getItem("ideaRadarAccessToken") || "";
+    let paypalClientId = "";
+
+    function setMessage(text) { messageEl.textContent = text || ""; }
+    function escapeHtml(value) {
+      return String(value).replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/\"/g, "&quot;").replace(/'/g, "&#39;");
+    }
+
+    function renderCards() {
+      plansEl.innerHTML = plans.map((plan, idx) => `
+        <article class="plan ${plan.popular ? "popular" : ""}">
+          ${plan.popular ? "<span class='badge'>Most Popular</span>" : ""}
+          <h2>${escapeHtml(plan.title)}</h2>
+          <p class="price">${escapeHtml(plan.price)}</p>
+          <p class="desc">${escapeHtml(plan.desc)}</p>
+          <div class="paypal-slot" id="paypal-plan-${idx}"></div>
+        </article>
+      `).join("");
+    }
+
+    function loadPayPal(clientId) {
+      return new Promise((resolve, reject) => {
+        const script = document.createElement("script");
+        script.src = `https://www.paypal.com/sdk/js?client-id=${encodeURIComponent(clientId)}&currency=USD`;
+        script.onload = resolve;
+        script.onerror = () => reject(new Error("Failed to load PayPal SDK."));
+        document.head.appendChild(script);
+      });
+    }
+
+    async function captureOrder(orderID, plan) {
+      if (!token) {
+        setMessage("Please sign in before purchasing.");
+        window.location.href = "auth.html";
+        return;
+      }
+      const res = await fetch("/api/capture-order", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`,
+        },
+        body: JSON.stringify({
+          orderID,
+          item_name: plan.item_name,
+          package_type: plan.title,
+          credits: plan.credits,
+        }),
+      });
+      const json = await res.json();
+      if (!res.ok) throw new Error(json.error || "Failed to capture order.");
+      setMessage(`Purchase successful: ${plan.title}`);
+    }
+
+    function renderPayPalButtons() {
+      plans.forEach((plan, idx) => {
+        const slot = document.getElementById(`paypal-plan-${idx}`);
+        if (!slot) return;
+        if (!plan.paid) {
+          slot.innerHTML = "<p class='desc'>This plan is enabled automatically after sign up.</p>";
+          return;
+        }
+        window.paypal.Buttons({
+          style: { layout: "horizontal", color: "blue", shape: "pill", label: "paypal" },
+          createOrder: (_, actions) => actions.order.create({
+            purchase_units: [
+              {
+                amount: { currency_code: "USD", value: plan.amount },
+                description: plan.item_name,
+                custom_id: JSON.stringify({
+                  item_name: plan.item_name,
+                  package_type: plan.title,
+                  credits: plan.credits,
+                }),
+              },
+            ],
+          }),
+          onApprove: async (data) => {
+            try {
+              await captureOrder(data.orderID, plan);
+            } catch (error) {
+              setMessage(error.message || "Payment failed.");
+            }
+          },
+          onError: () => setMessage("PayPal checkout failed. Please try again."),
+        }).render(`#paypal-plan-${idx}`);
+      });
+    }
+
+    async function init() {
+      renderCards();
+      const configRes = await fetch("/api/config");
+      const config = await configRes.json();
+      paypalClientId = config.paypalClientId || "";
+      if (!paypalClientId) {
+        setMessage("PAYPAL_CLIENT_ID is not configured.");
+        return;
+      }
+      await loadPayPal(paypalClientId);
+      renderPayPalButtons();
+    }
+
+    init().catch((error) => setMessage(error.message || "Failed to load pricing page."));
+  </script>
+</body>
+</html>

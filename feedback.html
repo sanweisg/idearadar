@@ -43,12 +43,19 @@
       text-align: center;
       margin-bottom: 32px;
     }
+    .nav-row {
+      display: flex;
+      justify-content: center;
+      gap: 10px;
+      flex-wrap: wrap;
+      margin-bottom: 14px;
+    }
 
     .back-link {
       display: inline-flex;
       align-items: center;
       gap: 6px;
-      margin: 0 0 18px;
+      margin: 0;
       font-size: 0.88rem;
       font-weight: 600;
       color: var(--text-sub);
@@ -300,7 +307,11 @@
 <body>
   <div class="page">
     <header class="header">
-      <a class="back-link" href="index.html">← Back to IdeaRadar</a>
+      <nav class="nav-row" aria-label="Main navigation">
+        <a class="back-link" href="index.html">← Search</a>
+        <a class="back-link" href="pricing.html">Pricing</a>
+        <a class="back-link" href="auth.html">Sign In</a>
+      </nav>
       <h1>IdeaRadar Feedback Board</h1>
       <p class="subtitle">Help us improve — share your thoughts</p>
     </header>

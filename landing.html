@@ -36,6 +36,26 @@
       width: min(720px, 100%);
       text-align: center;
     }
+    .top-nav {
+      display: flex;
+      justify-content: center;
+      gap: 10px;
+      margin-bottom: 18px;
+      flex-wrap: wrap;
+    }
+    .top-nav a {
+      color: var(--text-sub);
+      text-decoration: none;
+      border: 1px solid rgba(255, 255, 255, 0.16);
+      border-radius: 999px;
+      padding: 6px 12px;
+      font-size: 0.84rem;
+      font-weight: 600;
+    }
+    .top-nav a:hover {
+      color: var(--accent-hover);
+      border-color: rgba(91, 155, 255, 0.6);
+    }
 
     h1 {
       margin: 0;
@@ -137,6 +157,12 @@
 </head>
 <body>
   <main class="container">
+    <nav class="top-nav" aria-label="Main navigation">
+      <a href="index.html">Search</a>
+      <a href="auth.html">Sign In</a>
+      <a href="pricing.html">Pricing</a>
+      <a href="feedback.html">Feedback</a>
+    </nav>
     <h1>Find Startup Ideas in One Search</h1>
     <p class="subtitle">Discover real pain points from Reddit, powered by AI</p>
 

@@ -1,0 +1,191 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>IdeaRadar Auth</title>
+  <style>
+    :root {
+      --bg: #0f1117;
+      --bg-soft: #151922;
+      --text-main: #f2f5ff;
+      --text-sub: #9ca7c2;
+      --accent: #3b82f6;
+      --accent-hover: #5b9bff;
+      --card: rgba(255, 255, 255, 0.03);
+      --border: rgba(255, 255, 255, 0.14);
+    }
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      min-height: 100vh;
+      font-family: Inter, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+      color: var(--text-main);
+      background:
+        radial-gradient(circle at 15% 20%, #1a2440 0%, transparent 38%),
+        radial-gradient(circle at 85% 0%, #1a2d57 0%, transparent 30%),
+        var(--bg);
+      display: grid;
+      place-items: center;
+      padding: 24px 16px;
+    }
+    .card {
+      width: min(460px, 100%);
+      border: 1px solid var(--border);
+      background: var(--card);
+      border-radius: 16px;
+      padding: 24px;
+      box-shadow: 0 12px 28px rgba(0, 0, 0, 0.35);
+    }
+    .top-link {
+      display: inline-block;
+      margin-bottom: 14px;
+      color: var(--text-sub);
+      text-decoration: none;
+      font-size: 0.9rem;
+      font-weight: 600;
+    }
+    .top-link:hover { color: var(--accent-hover); }
+    h1 {
+      margin: 0 0 6px;
+      font-size: clamp(1.6rem, 4vw, 2rem);
+    }
+    .subtitle {
+      margin: 0 0 20px;
+      color: var(--text-sub);
+      font-size: 0.95rem;
+    }
+    label {
+      display: block;
+      font-size: 0.86rem;
+      color: #c4ccea;
+      margin: 12px 0 6px;
+      font-weight: 600;
+    }
+    input {
+      width: 100%;
+      border: 1px solid rgba(255, 255, 255, 0.12);
+      background: var(--bg-soft);
+      color: var(--text-main);
+      border-radius: 10px;
+      padding: 12px 14px;
+      font-size: 0.95rem;
+    }
+    input:focus {
+      outline: none;
+      border-color: rgba(59, 130, 246, 0.8);
+      box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.2);
+    }
+    .actions {
+      margin-top: 18px;
+      display: flex;
+      gap: 10px;
+      align-items: center;
+    }
+    button {
+      border: none;
+      cursor: pointer;
+      border-radius: 10px;
+      padding: 11px 16px;
+      font-size: 0.92rem;
+      font-weight: 700;
+      background: var(--accent);
+      color: white;
+      transition: background 0.2s ease, transform 0.2s ease;
+    }
+    button:hover { background: var(--accent-hover); transform: translateY(-1px); }
+    .ghost {
+      background: transparent;
+      border: 1px solid var(--border);
+      color: var(--text-sub);
+    }
+    .message {
+      margin-top: 12px;
+      min-height: 20px;
+      color: #fbbf24;
+      font-size: 0.88rem;
+    }
+  </style>
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+</head>
+<body>
+  <main class="card">
+    <a class="top-link" href="landing.html">← Back to landing</a>
+    <h1 id="modeTitle">Sign In</h1>
+    <p class="subtitle">Use your email and password to continue.</p>
+    <form id="authForm">
+      <label for="email">Email</label>
+      <input id="email" type="email" required autocomplete="email" />
+      <label for="password">Password</label>
+      <input id="password" type="password" required minlength="6" autocomplete="current-password" />
+      <div class="actions">
+        <button id="submitBtn" type="submit">Sign In</button>
+        <button id="toggleBtn" class="ghost" type="button">Switch to Sign Up</button>
+      </div>
+      <p id="message" class="message"></p>
+    </form>
+  </main>
+
+  <script>
+    const form = document.getElementById("authForm");
+    const messageEl = document.getElementById("message");
+    const modeTitle = document.getElementById("modeTitle");
+    const submitBtn = document.getElementById("submitBtn");
+    const toggleBtn = document.getElementById("toggleBtn");
+    let mode = "signin";
+    let supabase = null;
+
+    function setMessage(text) {
+      messageEl.textContent = text || "";
+    }
+
+    function setMode(nextMode) {
+      mode = nextMode;
+      const isSignIn = mode === "signin";
+      modeTitle.textContent = isSignIn ? "Sign In" : "Sign Up";
+      submitBtn.textContent = isSignIn ? "Sign In" : "Create Account";
+      toggleBtn.textContent = isSignIn ? "Switch to Sign Up" : "Switch to Sign In";
+      setMessage("");
+    }
+
+    async function initSupabase() {
+      const configRes = await fetch("/api/config");
+      const config = await configRes.json();
+      if (!config.supabaseUrl || !config.supabaseAnonKey) {
+        throw new Error("Supabase public config is missing.");
+      }
+      supabase = window.supabase.createClient(config.supabaseUrl, config.supabaseAnonKey);
+    }
+
+    form.addEventListener("submit", async (event) => {
+      event.preventDefault();
+      if (!supabase) return;
+      setMessage("Working...");
+      const email = document.getElementById("email").value.trim();
+      const password = document.getElementById("password").value;
+
+      try {
+        if (mode === "signin") {
+          const { data, error } = await supabase.auth.signInWithPassword({ email, password });
+          if (error) throw error;
+          localStorage.setItem("ideaRadarAccessToken", data.session.access_token);
+          window.location.href = "index.html";
+        } else {
+          const { error } = await supabase.auth.signUp({ email, password });
+          if (error) throw error;
+          setMessage("Account created. You can sign in now.");
+          setMode("signin");
+        }
+      } catch (error) {
+        setMessage(error.message || "Authentication failed.");
+      }
+    });
+
+    toggleBtn.addEventListener("click", () => {
+      setMode(mode === "signin" ? "signup" : "signin");
+    });
+
+    initSupabase().catch((error) => setMessage(error.message || "Failed to load auth config."));
+  </script>
+</body>
+</html>
