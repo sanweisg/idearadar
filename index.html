@@ -724,6 +724,17 @@
     });
 
     renderRecentSearches();
+    
+    // 立即显示登录按钮，不要等待 Supabase 初始化完成
+    // 这确保即使初始化失败，用户也能看到登录选项
+    (function showLoginButtonImmediately() {
+      navLoading.classList.add("hidden");
+      userEmailEl.classList.add("hidden");
+      creditsInfoEl.classList.add("hidden");
+      logoutBtn.classList.add("hidden");
+      signInLink.classList.remove("hidden");
+    })();
+    
         // 尝试从本地存储恢复 token
         (function restoreSessionFromLocal() {
       const storedToken = localStorage.getItem("ideaRadarAccessToken");
@@ -735,13 +746,11 @@
           accessToken = "";
           updateAccountUi();
         });
-      } else {
-        // 确保 UI 被更新
-        updateAccountUi();
       }
     })();
     initSupabaseSession()
       .catch((error) => {
+        console.error("Supabase init error:", error);
         navLoading.classList.add("hidden");
         isAuthenticated = false;
         accessToken = "";
