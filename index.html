@@ -375,9 +375,8 @@
     async function ensurePayPalLoaded() {
       if (window.paypal) return;
       if (!paypalClientId) {
-        const configRes = await fetch("/api/config");
-        const config = await configRes.json();
-        paypalClientId = config.paypalClientId || "";
+        // Hardcode PayPal client ID for testing
+        paypalClientId = ""; // Add your PayPal client ID here if needed
       }
       if (!paypalClientId) throw new Error("PAYPAL_CLIENT_ID is not configured.");
       await new Promise((resolve, reject) => {
@@ -557,11 +556,11 @@
     }
 
     async function initSupabaseSession() {
-      const configRes = await fetch("/api/config");
-      const config = await configRes.json();
-      if (!config.supabaseUrl || !config.supabaseAnonKey) {
-        throw new Error("Supabase public config is missing.");
-      }
+      // Hardcode Supabase config for testing
+      const config = {
+        supabaseUrl: "https://upmmwyyprnpyishumfie.supabase.co",
+        supabaseAnonKey: "sb_publishable_kNgXkVfZMzZz_UwlwM81Pg_KVfrgZE6"
+      };
       supabaseClient = window.supabase.createClient(config.supabaseUrl, config.supabaseAnonKey);
       const { data: subData } = supabaseClient.auth.onAuthStateChange(async (_event, session) => {
         if (!session) {
