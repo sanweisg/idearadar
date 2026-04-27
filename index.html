@@ -556,48 +556,81 @@
     }
 
     async function initSupabaseSession() {
-      // Hardcode Supabase config for testing
-      const config = {
-        supabaseUrl: "https://upmmwyyprnpyishumfie.supabase.co",
-        supabaseAnonKey: "sb_publishable_kNgXkVfZMzZz_UwlwM81Pg_KVfrgZE6"
-      };
-      supabaseClient = window.supabase.createClient(config.supabaseUrl, config.supabaseAnonKey);
-      const { data: subData } = supabaseClient.auth.onAuthStateChange(async (_event, session) => {
+      try {
+        // Hardcode Supabase config for testing
+        const config = {
+          supabaseUrl: "https://upmmwyyprnpyishumfie.supabase.co",
+          supabaseAnonKey: "sb_publishable_kNgXkVfZMzZz_UwlwM81Pg_KVfrgZE6"
+        };
+        
+        // Check if supabase is available
+        if (!window.supabase) {
+          throw new Error("Supabase SDK not loaded.");
+        }
+        
+        supabaseClient = window.supabase.createClient(config.supabaseUrl, config.supabaseAnonKey);
+        
+        // Set up auth state change listener
+        const { data: subData } = supabaseClient.auth.onAuthStateChange(async (_event, session) => {
+          if (!session) {
+            isAuthenticated = false;
+            accessToken = "";
+            profileState = null;
+            localStorage.removeItem("ideaRadarAccessToken");
+            updateAccountUi();
+            return;
+          }
+          isAuthenticated = true;
+          accessToken = session.access_token || "";
+          localStorage.setItem("ideaRadarAccessToken", accessToken);
+          try {
+            await loadProfile();
+          } catch (error) {
+            setStatus(error.message || "Failed to refresh profile.");
+          }
+        });
+        authSubscription = subData?.subscription || null;
+
+        // Get current session
+        const { data, error } = await supabaseClient.auth.getSession();
+        if (error) {
+          console.error("Error getting session:", error);
+          // Don't throw error, just handle it gracefully
+          isAuthenticated = false;
+          accessToken = "";
+          profileState = null;
+          updateAccountUi();
+          return;
+        }
+        
+        const session = data?.session || null;
         if (!session) {
           isAuthenticated = false;
           accessToken = "";
           profileState = null;
-          localStorage.removeItem("ideaRadarAccessToken");
           updateAccountUi();
           return;
         }
+        
         isAuthenticated = true;
         accessToken = session.access_token || "";
         localStorage.setItem("ideaRadarAccessToken", accessToken);
+        
         try {
           await loadProfile();
         } catch (error) {
-          setStatus(error.message || "Failed to refresh profile.");
+          console.error("Error loading profile:", error);
+          // Don't throw error, just handle it gracefully
+          updateAccountUi();
         }
-      });
-      authSubscription = subData?.subscription || null;
-
-      const { data, error } = await supabaseClient.auth.getSession();
-      if (error) {
-        throw new Error(error.message || "Failed to initialize auth session.");
-      }
-      const session = data?.session || null;
-      if (!session) {
+      } catch (error) {
+        console.error("Error in initSupabaseSession:", error);
+        // Ensure UI is updated even if there's an error
         isAuthenticated = false;
         accessToken = "";
         profileState = null;
         updateAccountUi();
-        return;
       }
-      isAuthenticated = true;
-      accessToken = session.access_token || "";
-      localStorage.setItem("ideaRadarAccessToken", accessToken);
-      await loadProfile();
     }
 
     async function handleSearch() {
