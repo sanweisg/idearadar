@@ -544,15 +544,25 @@
     }
 
     async function loadProfile() {
-      if (!accessToken) return null;
-      const response = await fetch("/api/profile", {
-        headers: { Authorization: `Bearer ${accessToken}` },
-      });
-      const json = await response.json();
-      if (!response.ok) throw new Error(json.error || "Failed to load profile.");
-      profileState = json.profile || null;
-      updateAccountUi();
-      return profileState;
+      if (!accessToken) {
+        profileState = null;
+        updateAccountUi();
+        return null;
+      }
+      try {
+        const response = await fetch("/api/profile", {
+          headers: { Authorization: `Bearer ${accessToken}` },
+        });
+        const json = await response.json();
+        if (!response.ok) throw new Error(json.error || "Failed to load profile.");
+        profileState = json.profile || null;
+      } catch (error) {
+        console.error("Error loading profile:", error);
+        profileState = null;
+      } finally {
+        updateAccountUi();
+        return profileState;
+      }
     }
 
     async function initSupabaseSession() {
@@ -723,7 +733,11 @@
         loadProfile().catch(() => {
           localStorage.removeItem("ideaRadarAccessToken");
           accessToken = "";
+          updateAccountUi();
         });
+      } else {
+        // 确保 UI 被更新
+        updateAccountUi();
       }
     })();
     initSupabaseSession()
